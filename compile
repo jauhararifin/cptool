@@ -1,0 +1,113 @@
+#!/bin/bash
+
+CPTOOL_DIR=/home/jauhararifin/projects/cptool
+
+compile_print_usage() {
+  echo "Compile competitive programming solution."
+  echo "Usage: cptool compile [OPTION]... [LANGUAGE] SOLUTION"
+	echo "Available commands:"
+	echo "  -h --help    Show this help screen."
+  echo "  --version    Show version."
+  echo "  -d --debug   Compile using debug mode"
+}
+
+compile_print_version() {
+  echo `cat $CPTOOL_DIR/VERSION`
+}
+
+compile_check_is_language_folder() {
+  if [ -f "$1/lang.conf" ] && [ -f "$1/compile" ] && [ -f "$1/run" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+compile_compile_solution() {
+  debug="$1"
+  language="$2"
+  solution="$3"
+  for lang_folder in "$CPTOOL_DIR"/langs/*
+  do
+    compile_check_is_language_folder "$lang_folder"
+    if [ $? -eq 0 ]; then
+      source "$lang_folder/lang.conf"
+      if [ -z "$name" ]; then
+        name=`basename "$lang_folder"`
+      fi
+      if [ -z "$shortname" ]; then
+        shortname="$name";
+      fi
+      if [ -z "$extension" ]; then
+        extension="$shortname"
+      fi
+
+      current_source_code="$solution.$extension"
+
+      if [ "$name" = "$language" ]; then
+        if [ ! -f $current_source_code ]; then
+          echo "Error compiling solution: file $current_source_code not found"
+          exit 1
+        fi
+        
+        DEST=".cptool/$solution"
+        SOURCE="$current_source_code"
+        mkdir -p `dirname $DEST`
+
+        if [ "$DEST" -nt "$SOURCE" ]; then
+          echo "Skip compiling solution: no change in solution"
+          exit 0
+        fi
+
+        eval "DEST=\"$DEST\" SOURCE=\"$SOURCE\" $lang_folder/compile"
+        if [ $? -eq 0 ]; then
+          echo "Success compiling solution: $solution"
+          exit 0
+        else
+          echo "Error compiling solution: compilation script failed"
+          exit 1
+        fi
+      fi
+    fi
+  done
+}
+
+DEFAULT_LANGUAGE="cpp"
+
+DEBUG=false
+LANGUAGE=""
+SOLUTION=""
+
+parsing_options=true
+for arg in "$@"
+do
+  if [ $parsing_options = true ]; then
+    if [ $arg = "-h" ] || [ $arg = "--help" ]; then
+      compile_print_usage
+      exit $?
+    elif [ $arg = "--version" ]; then
+      compile_print_version
+      exit $?
+    elif [ $arg = "-d" ] || [ $arg = "--debug" ]; then
+      DEBUG=true
+    else
+      parsing_options=false
+      LANGUAGE=$arg
+    fi
+  elif [ -z "$SOLUTION" ]; then
+    SOLUTION=$arg
+  else
+    compile_print_usage
+    exit 1
+  fi
+done
+
+if [ -z "$LANGUAGE" ]; then
+  compile_print_usage
+  exit 1
+elif [ -z "$SOLUTION" ]; then
+  SOLUTION="$LANGUAGE"
+  LANGUAGE="$DEFAULT_LANGUAGE"
+fi
+
+compile_compile_solution "$DEBUG" "$LANGUAGE" "$SOLUTION"
