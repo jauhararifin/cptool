@@ -50,7 +50,20 @@ compile_compile_solution() {
           exit 1
         fi
         
+        compile_script="$lang_folder/compile"
+        if [ $debug = true ]; then
+          if [ ! -f "$lang_folder/debugcompile" ]; then
+            echo "Warning compiling solution: language doesn't have debug compile script, use default compile instead"
+            debug=false
+          else
+            compile_script="$lang_folder/debugcompile"
+          fi
+        fi
+
         DEST=".cptool/$solution"
+        if [ $debug = true ]; then
+          DEST="${DEST}_test"
+        fi
         SOURCE="$current_source_code"
         mkdir -p `dirname $DEST`
 
@@ -59,7 +72,7 @@ compile_compile_solution() {
           exit 0
         fi
 
-        eval "DEST=\"$DEST\" SOURCE=\"$SOURCE\" $lang_folder/compile"
+        eval "DEST=\"$DEST\" SOURCE=\"$SOURCE\" $compile_script"
         if [ $? -eq 0 ]; then
           echo "Success compiling solution: $solution"
           exit 0
@@ -106,6 +119,7 @@ do
 done
 
 if [ -z "$LANGUAGE" ]; then
+  echo "Error: please specify solution name."
   compile_print_usage
   exit 1
 elif [ -z "$SOLUTION" ]; then
