@@ -2,8 +2,9 @@
 
 CPTOOL_DIR=`dirname $0`
 
-compile_print_usage() {
-  echo "Compile competitive programming solution."
+print_usage() {
+  echo "Compile"
+  echo "  compile competitive programming solution."
   echo "Usage: cptool compile [OPTION]... [LANGUAGE] SOLUTION"
 	echo "Available commands:"
 	echo "  -h --help    Show this help screen."
@@ -11,11 +12,11 @@ compile_print_usage() {
   echo "  -d --debug   Compile using debug mode"
 }
 
-compile_print_version() {
+print_version() {
   echo `cat $CPTOOL_DIR/VERSION`
 }
 
-compile_check_is_language_folder() {
+check_is_language_folder() {
   if [ -f "$1/lang.conf" ] && [ -f "$1/compile" ] && [ -f "$1/run" ]; then
     return 0
   else
@@ -23,26 +24,26 @@ compile_check_is_language_folder() {
   fi
 }
 
-compile_compile_solution() {
-  debug="$1"
-  language="$2"
-  solution="$3"
+compile_solution() {
+  local debug="$1"
+  local language="$2"
+  local solution="$3"
   for lang_folder in "$CPTOOL_DIR"/langs/*
   do
-    compile_check_is_language_folder "$lang_folder"
+    check_is_language_folder "$lang_folder"
     if [ $? -eq 0 ]; then
       source "$lang_folder/lang.conf"
       if [ -z "$name" ]; then
-        name=`basename "$lang_folder"`
+        local name=`basename "$lang_folder"`
       fi
       if [ -z "$shortname" ]; then
-        shortname="$name";
+        local shortname="$name";
       fi
       if [ -z "$extension" ]; then
-        extension="$shortname"
+        local extension="$shortname"
       fi
 
-      current_source_code="$solution.$extension"
+      local current_source_code="$solution.$extension"
 
       if [ "$name" = "$language" ]; then
         if [ ! -f $current_source_code ]; then
@@ -50,21 +51,21 @@ compile_compile_solution() {
           exit 1
         fi
         
-        compile_script="$lang_folder/compile"
+        local compile_script="$lang_folder/compile"
         if [ $debug = true ]; then
           if [ ! -f "$lang_folder/debugcompile" ]; then
             echo "Warning compiling solution: language doesn't have debug compile script, use default compile instead"
-            debug=false
+            local debug=false
           else
-            compile_script="$lang_folder/debugcompile"
+            local compile_script="$lang_folder/debugcompile"
           fi
         fi
 
-        DEST=".cptool/$solution"
+        local DEST=".cptool/$solution"
         if [ $debug = true ]; then
-          DEST="${DEST}_test"
+          local DEST="${DEST}_test"
         fi
-        SOURCE="$current_source_code"
+        local SOURCE="$current_source_code"
         mkdir -p `dirname $DEST`
 
         if [ "$DEST" -nt "$SOURCE" ]; then
@@ -99,10 +100,10 @@ for arg in "$@"
 do
   if [ $parsing_options = true ]; then
     if [ $arg = "-h" ] || [ $arg = "--help" ]; then
-      compile_print_usage
+      print_usage
       exit $?
     elif [ $arg = "--version" ]; then
-      compile_print_version
+      print_version
       exit $?
     elif [ $arg = "-d" ] || [ $arg = "--debug" ]; then
       DEBUG=true
@@ -113,18 +114,18 @@ do
   elif [ -z "$SOLUTION" ]; then
     SOLUTION=$arg
   else
-    compile_print_usage
+    print_usage
     exit 1
   fi
 done
 
 if [ -z "$LANGUAGE" ]; then
   echo "Error: please specify solution name."
-  compile_print_usage
+  print_usage
   exit 1
 elif [ -z "$SOLUTION" ]; then
   SOLUTION="$LANGUAGE"
   LANGUAGE="$DEFAULT_LANGUAGE"
 fi
 
-compile_compile_solution "$DEBUG" "$LANGUAGE" "$SOLUTION"
+compile_solution "$DEBUG" "$LANGUAGE" "$SOLUTION"
