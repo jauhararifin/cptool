@@ -6,21 +6,28 @@ source "$CPTOOL_DIR/util"
 
 print_usage() {
   echo "Run"
-  echo "  run competitive programming solution."
+  echo "  run competitive programming solution. The program will compiled first if not yet compiled. The program"
+  echo "  will be killed if still running after some period of time, you can change this behaviour using --timeout"
+  echo "  option"
   echo ""
   echo "Usage: cptool run [OPTION]... [LANGUAGE] SOLUTION"
   echo ""
   echo "Available commands:"
-  echo "  -h --help    Show this help screen."
-  echo "  --version    Show version."
-  echo "  --hide-time  Hide time indicator"
+  echo "  -h --help           Show this help screen."
+  echo "  --version           Show version."
+  echo "  --hide-time         Hide time indicator"
+  echo "  -t, --timeout TIME  Kill program if still running after TIME"
+  echo "                      TIME is a floating point number with an optional suffix:"
+  echo "                      's' for seconds (the default), 'm' for minutes, 'h' for hours or 'd' for days"
+  echo "                      The default value of this option is 10s"
   echo ""
 }
 
 run_solution() {
   local hide_time="$1"
-  local language="$2"
-  local solution="$3"
+  local timeout="$2"
+  local language="$3"
+  local solution="$4"
 
   $CPTOOL_DIR/compile "$language" "$solution"
   if [ $? -ne 0 ]; then
@@ -43,10 +50,11 @@ run_solution() {
       exit 1
     fi
 
+    export PROGRAM="$PROGRAM"
     if [ $hide_time = true ]; then
-      eval "PROGRAM=\"$PROGRAM\" \"$lang_folder/run\""
+      eval "timeout -k $timeout $timeout \"$lang_folder/run\""
     else
-      eval "time PROGRAM=\"$PROGRAM\" \"$lang_folder/run\""
+      eval "time timeout -k $timeout $timeout \"$lang_folder/run\""
     fi
 
     if [ $? -eq 0 ]; then
@@ -66,14 +74,23 @@ run_solution() {
 DEFAULT_LANGUAGE="cpp"
 
 HIDE_TIME=false
+TIMEOUT=10s
 LANGUAGE=""
 SOLUTION=""
 
 parsing_options=true
+parsing_timeout=false
+if [ $# -eq 0 ]; then
+  print_usage
+  exit 0
+fi
 for arg in "$@"
 do
   if [ $parsing_options = true ]; then
-    if [ $arg = "-h" ] || [ $arg = "--help" ]; then
+    if [ $parsing_timeout = true ]; then
+      parsing_timeout=false
+      TIMEOUT=$arg
+    elif [ $arg = "-h" ] || [ $arg = "--help" ]; then
       print_usage
       exit $?
     elif [ $arg = "--version" ]; then
@@ -81,6 +98,8 @@ do
       exit $?
     elif [ $arg = "--hide-time" ]; then
       HIDE_TIME=true
+    elif [ $arg = "-t" ] || [ $arg = "--timeout" ]; then
+      parsing_timeout=true
     else
       parsing_options=false
       LANGUAGE=$arg
@@ -102,4 +121,4 @@ elif [ -z "$SOLUTION" ]; then
   LANGUAGE="$DEFAULT_LANGUAGE"
 fi
 
-run_solution $HIDE_TIME $LANGUAGE $SOLUTION
+run_solution $HIDE_TIME "$TIMEOUT" "$LANGUAGE" "$SOLUTION"

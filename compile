@@ -25,7 +25,6 @@ compile_solution() {
   local lang_folder=`get_language "$language"`
   if [ $? -eq 0 ]; then
     . "$lang_folder/lang.conf"
-    echo "language $verbose_name $extension"
     if [ -z "$verbose_name" ]; then
       local verbose_name="$name";
     fi
