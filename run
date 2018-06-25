@@ -2,9 +2,11 @@
 
 CPTOOL_DIR=`dirname $0`
 
+source "$CPTOOL_DIR/util"
+
 print_usage() {
   echo "Run"
-  echo "  runcompetitive programming solution."
+  echo "  run competitive programming solution."
   echo "Usage: cptool run [OPTION]... [LANGUAGE] SOLUTION"
   echo "Available commands:"
   echo "  -h --help    Show this help screen."
@@ -12,69 +14,47 @@ print_usage() {
   echo "  --hide-time  Hide time indicator"
 }
 
-print_version() {
-  echo `cat $CPTOOL_DIR/VERSION`
-}
-
-check_is_language_folder() {
-  if [ -f "$1/lang.conf" ] && [ -f "$1/compile" ] && [ -f "$1/run" ]; then
-    return 0
-  else
-    return 1
-  fi
-}
-
 run_solution() {
-  $CPTOOL_DIR/compile $2 $3
-  if [ ! $? -eq 0 ]; then
-    exit 1
-  fi
-
   local hide_time="$1"
   local language="$2"
   local solution="$3"
-  for lang_folder in "$CPTOOL_DIR"/langs/*
-  do
-    check_is_language_folder "$lang_folder"
-    if [ $? -eq 0 ]; then
-      source "$lang_folder/lang.conf"
-      if [ -z "$name" ]; then
-        local name=`basename "$lang_folder"`
-      fi
-      if [ -z "$shortname" ]; then
-        local shortname="$name";
-      fi
-      if [ -z "$extension" ]; then
-        local extension="$shortname"
-      fi
 
-      if [ "$name" = "$language" ]; then
+  $CPTOOL_DIR/compile "$language" "$solution"
 
-        local PROGRAM=".cptool/$solution"
-        if [ ! -f $PROGRAM ]; then
-          echo "Error running solution: file $PROGRAM doestn't exists"
-          exit 1
-        fi
-        
-        if [ $hide_time = true ]; then
-          eval "PROGRAM=\"$PROGRAM\" \"$lang_folder/run\""
-        else
-          eval "time PROGRAM=\"$PROGRAM\" \"$lang_folder/run\""
-        fi
-
-        if [ $? -eq 0 ]; then
-          echo "Success running solution: $solution"
-          exit 0
-        else
-          echo "Error running solution: run script failed"
-          exit 1
-        fi
-      fi
+  local lang_folder=`get_language "$language"`
+  if [ $? -eq 0 ]; then
+    source "$lang_folder/lang.conf"
+    if [ -z "$verbose_name" ]; then
+      local verbose_name="$name";
     fi
-  done
+    if [ -z "$extension" ]; then
+      local extension="$language"
+    fi
 
-  echo "Error running solution: language definition doesn't exists"
-  exit 1
+    local PROGRAM=".cptool/$solution"
+    if [ ! -f $PROGRAM ]; then
+      echo_error "Error running solution: file $PROGRAM doesn't exists"
+      exit 1
+    fi
+
+    if [ $hide_time = true ]; then
+      eval "PROGRAM=\"$PROGRAM\" \"$lang_folder/run\""
+    else
+      eval "time PROGRAM=\"$PROGRAM\" \"$lang_folder/run\""
+    fi
+
+    if [ $? -eq 0 ]; then
+      echo_success "Success running solution: $solution"
+      exit 0
+    else
+      echo_error "Error running solution: run script failed"
+      exit 1
+    fi
+
+  else
+    echo_error "Error running solution: language definition doesn't exists"
+    exit 1
+  fi
 }
 
 DEFAULT_LANGUAGE="cpp"
