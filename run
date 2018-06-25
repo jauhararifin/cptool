@@ -29,7 +29,7 @@ run_solution() {
 
   local lang_folder=`get_language "$language"`
   if [ $? -eq 0 ]; then
-    source "$lang_folder/lang.conf"
+    . "$lang_folder/lang.conf"
     if [ -z "$verbose_name" ]; then
       local verbose_name="$name";
     fi
@@ -37,7 +37,7 @@ run_solution() {
       local extension="$language"
     fi
 
-    local PROGRAM=".cptool/$solution"
+    local PROGRAM=`get_solution_target_path false "$language" "$solution"`
     if [ ! -f $PROGRAM ]; then
       echo_error "Error running solution: file $PROGRAM doesn't exists"
       exit 1

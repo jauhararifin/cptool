@@ -42,9 +42,20 @@ is_folder_language() {
   fi
 }
 
+get_solution_target_path() {
+  local debug="$1"
+  local lang="$2"
+  local solution="$3"
+  if [ $debug = true ]; then
+    echo ".cptool/solutions/$solution/${lang}_debug"
+  else
+    echo ".cptool/solutions/$solution/$lang"
+  fi
+}
+
 get_language() {
   local lang=$1
-  for lang_folder in "$CPTOOL_DIR"/langs/*
+  for lang_folder in "$CPTOOL_DIR"/langs/* ~/.cptool/langs/* .cptool/langs/*
   do
     local lang_name=`basename "$lang_folder"`
     is_folder_language "$lang_folder"

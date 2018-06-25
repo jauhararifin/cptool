@@ -24,7 +24,8 @@ compile_solution() {
 
   local lang_folder=`get_language "$language"`
   if [ $? -eq 0 ]; then
-    source "$lang_folder/lang.conf"
+    . "$lang_folder/lang.conf"
+    echo "language $verbose_name $extension"
     if [ -z "$verbose_name" ]; then
       local verbose_name="$name";
     fi
@@ -48,7 +49,7 @@ compile_solution() {
       fi
     fi
 
-    local DEST=".cptool/$solution"
+    local DEST=`get_solution_target_path "$debug" "$language" "$solution"`
     if [ $debug = true ]; then
       local DEST="${DEST}_test"
     fi
