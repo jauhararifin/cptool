@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CPTOOL_DIR=/home/jauhararifin/projects/cptool
+CPTOOL_DIR=`dirname $0`
 
 compile_print_usage() {
   echo "Compile competitive programming solution."
@@ -70,6 +70,9 @@ compile_compile_solution() {
       fi
     fi
   done
+
+  echo "Error compiling solution: language definition doesn't exists"
+  exit 1
 }
 
 DEFAULT_LANGUAGE="cpp"
