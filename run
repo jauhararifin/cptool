@@ -14,6 +14,7 @@ print_usage() {
   echo "  -h --help    Show this help screen."
   echo "  --version    Show version."
   echo "  --hide-time  Hide time indicator"
+  echo ""
 }
 
 run_solution() {
@@ -22,6 +23,9 @@ run_solution() {
   local solution="$3"
 
   $CPTOOL_DIR/compile "$language" "$solution"
+  if [ $? -ne 0 ]; then
+    exit $?
+  fi
 
   local lang_folder=`get_language "$language"`
   if [ $? -eq 0 ]; then
