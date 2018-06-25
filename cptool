@@ -2,20 +2,22 @@
 
 CPTOOL_DIR=`dirname $0`
 
+source "$CPTOOL_DIR/util"
+
 print_usage() {
-  echo "CP TOOL"
+  echo "CP Tool"
   echo "  simple bash script that help you compile and run your competitive programming solution."
+  echo ""
   echo "Usage: cptool [OPTIONS] COMMAND [ARGS]..."
-	echo "Available options:"
+	echo ""
+  echo "Available options:"
 	echo "  -h --help    Show this help screen."
   echo "  --version    Show version."
+  echo ""
   echo "Available commands:"
   echo "  compile      Compile your solution"
   echo "  run          Run your solution. This will compile first if not yet compiled."
-}
-
-print_version() {
-  echo `cat $CPTOOL_DIR/VERSION`
+  echo ""
 }
 
 i=2
@@ -39,3 +41,5 @@ do
   fi
   i=$(($i+1))
 done
+
+print_usage

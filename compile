@@ -7,11 +7,14 @@ source "$CPTOOL_DIR/util"
 print_usage() {
   echo "Compile"
   echo "  compile competitive programming solution."
+  echo ""
   echo "Usage: cptool compile [OPTION]... [LANGUAGE] SOLUTION"
-	echo "Available commands:"
+  echo ""
+  echo "Available commands:"
 	echo "  -h --help    Show this help screen."
   echo "  --version    Show version."
   echo "  -d --debug   Compile using debug mode"
+  echo ""
 }
 
 compile_solution() {
