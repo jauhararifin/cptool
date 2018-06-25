@@ -1,0 +1,119 @@
+#!/bin/bash
+
+CPTOOL_DIR=`dirname $0`
+
+print_usage() {
+  echo "Run"
+  echo "  runcompetitive programming solution."
+  echo "Usage: cptool run [OPTION]... [LANGUAGE] SOLUTION"
+  echo "Available commands:"
+  echo "  -h --help    Show this help screen."
+  echo "  --version    Show version."
+  echo "  --hide-time  Hide time indicator"
+}
+
+print_version() {
+  echo `cat $CPTOOL_DIR/VERSION`
+}
+
+check_is_language_folder() {
+  if [ -f "$1/lang.conf" ] && [ -f "$1/compile" ] && [ -f "$1/run" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+run_solution() {
+  $CPTOOL_DIR/compile $2 $3
+  if [ ! $? -eq 0 ]; then
+    exit 1
+  fi
+
+  local hide_time="$1"
+  local language="$2"
+  local solution="$3"
+  for lang_folder in "$CPTOOL_DIR"/langs/*
+  do
+    check_is_language_folder "$lang_folder"
+    if [ $? -eq 0 ]; then
+      source "$lang_folder/lang.conf"
+      if [ -z "$name" ]; then
+        local name=`basename "$lang_folder"`
+      fi
+      if [ -z "$shortname" ]; then
+        local shortname="$name";
+      fi
+      if [ -z "$extension" ]; then
+        local extension="$shortname"
+      fi
+
+      if [ "$name" = "$language" ]; then
+
+        local PROGRAM=".cptool/$solution"
+        if [ ! -f $PROGRAM ]; then
+          echo "Error running solution: file $PROGRAM doestn't exists"
+          exit 1
+        fi
+        
+        if [ $hide_time = true ]; then
+          eval "PROGRAM=\"$PROGRAM\" \"$lang_folder/run\""
+        else
+          eval "time PROGRAM=\"$PROGRAM\" \"$lang_folder/run\""
+        fi
+
+        if [ $? -eq 0 ]; then
+          echo "Success running solution: $solution"
+          exit 0
+        else
+          echo "Error running solution: run script failed"
+          exit 1
+        fi
+      fi
+    fi
+  done
+
+  echo "Error running solution: language definition doesn't exists"
+  exit 1
+}
+
+DEFAULT_LANGUAGE="cpp"
+
+HIDE_TIME=false
+LANGUAGE=""
+SOLUTION=""
+
+parsing_options=true
+for arg in "$@"
+do
+  if [ $parsing_options = true ]; then
+    if [ $arg = "-h" ] || [ $arg = "--help" ]; then
+      print_usage
+      exit $?
+    elif [ $arg = "--version" ]; then
+      print_version
+      exit $?
+    elif [ $arg = "--hide-time" ]; then
+      HIDE_TIME=true
+    else
+      parsing_options=false
+      LANGUAGE=$arg
+    fi
+  elif [ -z "$SOLUTION" ]; then
+    SOLUTION=$arg
+  else
+    print_usage
+    exit 1
+  fi
+done
+
+if [ -z "$LANGUAGE" ]; then
+  echo "Error: please specify solution name."
+  print_usage
+  exit 1
+elif [ -z "$SOLUTION" ]; then
+  SOLUTION="$LANGUAGE"
+  LANGUAGE="$DEFAULT_LANGUAGE"
+fi
+
+run_solution $HIDE_TIME $LANGUAGE $SOLUTION
