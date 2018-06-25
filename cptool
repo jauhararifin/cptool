@@ -1,0 +1,41 @@
+#!/bin/bash
+
+CPTOOL_DIR=`dirname $0`
+
+print_usage() {
+  echo "CP TOOL"
+  echo "  simple bash script that help you compile and run your competitive programming solution."
+  echo "Usage: cptool [OPTIONS] COMMAND [ARGS]..."
+	echo "Available options:"
+	echo "  -h --help    Show this help screen."
+  echo "  --version    Show version."
+  echo "Available commands:"
+  echo "  compile      Compile your solution"
+  echo "  run          Run your solution. This will compile first if not yet compiled."
+}
+
+print_version() {
+  echo `cat $CPTOOL_DIR/VERSION`
+}
+
+i=2
+for arg in "$@"
+do
+  if [ $arg = "-h" ] || [ $arg = "--help" ]; then
+    print_usage
+    exit $?
+  elif [ $arg = "--version" ]; then
+    print_version
+    exit $?
+  elif [ $arg = "compile" ]; then
+    "$CPTOOL_DIR/compile" ${@:$i}
+    exit $?
+  elif [ $arg = "run" ]; then
+    "$CPTOOL_DIR/run" ${@:$i}
+    exit $?
+  else
+    print_usage
+    exit 1
+  fi
+  i=$(($i+1))
+done
