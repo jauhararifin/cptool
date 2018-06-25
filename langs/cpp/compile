@@ -1,0 +1,6 @@
+
+#!/bin/bash
+
+g++ -x c++ -Wall -O2 -static -pipe -o "$DEST" "$SOURCE"
+
+exit $?

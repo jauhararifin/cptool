@@ -1,0 +1,9 @@
+#!/bin/bash
+
+fpc -viwn -O2 -Sg -XS -o"$DEST" "$SOURCE"
+exitcode=$?
+
+# clean created object files:
+rm -f "$DEST.o"
+
+exit $exitcode
