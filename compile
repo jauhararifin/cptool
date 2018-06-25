@@ -2,6 +2,8 @@
 
 CPTOOL_DIR=`dirname $0`
 
+source "$CPTOOL_DIR/util"
+
 print_usage() {
   echo "Compile"
   echo "  compile competitive programming solution."
@@ -12,81 +14,61 @@ print_usage() {
   echo "  -d --debug   Compile using debug mode"
 }
 
-print_version() {
-  echo `cat $CPTOOL_DIR/VERSION`
-}
-
-check_is_language_folder() {
-  if [ -f "$1/lang.conf" ] && [ -f "$1/compile" ] && [ -f "$1/run" ]; then
-    return 0
-  else
-    return 1
-  fi
-}
-
 compile_solution() {
   local debug="$1"
   local language="$2"
   local solution="$3"
-  for lang_folder in "$CPTOOL_DIR"/langs/*
-  do
-    check_is_language_folder "$lang_folder"
-    if [ $? -eq 0 ]; then
-      source "$lang_folder/lang.conf"
-      if [ -z "$name" ]; then
-        local name=`basename "$lang_folder"`
-      fi
-      if [ -z "$shortname" ]; then
-        local shortname="$name";
-      fi
-      if [ -z "$extension" ]; then
-        local extension="$shortname"
-      fi
 
-      local current_source_code="$solution.$extension"
+  local lang_folder=`get_language "$language"`
+  if [ $? -eq 0 ]; then
+    source "$lang_folder/lang.conf"
+    if [ -z "$verbose_name" ]; then
+      local verbose_name="$name";
+    fi
+    if [ -z "$extension" ]; then
+      local extension="$language"
+    fi
 
-      if [ "$name" = "$language" ]; then
-        if [ ! -f $current_source_code ]; then
-          echo "Error compiling solution: file $current_source_code not found"
-          exit 1
-        fi
-        
-        local compile_script="$lang_folder/compile"
-        if [ $debug = true ]; then
-          if [ ! -f "$lang_folder/debugcompile" ]; then
-            echo "Warning compiling solution: language doesn't have debug compile script, use default compile instead"
-            local debug=false
-          else
-            local compile_script="$lang_folder/debugcompile"
-          fi
-        fi
+    local current_source_code="$solution.$extension"
+    if [ ! -f $current_source_code ]; then
+      echo_error "Error compiling solution: file $current_source_code not found"
+      exit 1
+    fi
 
-        local DEST=".cptool/$solution"
-        if [ $debug = true ]; then
-          local DEST="${DEST}_test"
-        fi
-        local SOURCE="$current_source_code"
-        mkdir -p `dirname $DEST`
-
-        if [ "$DEST" -nt "$SOURCE" ]; then
-          echo "Skip compiling solution: no change in solution"
-          exit 0
-        fi
-
-        eval "DEST=\"$DEST\" SOURCE=\"$SOURCE\" $compile_script"
-        if [ $? -eq 0 ]; then
-          echo "Success compiling solution: $solution"
-          exit 0
-        else
-          echo "Error compiling solution: compilation script failed"
-          exit 1
-        fi
+    local compile_script="$lang_folder/compile"
+    if [ $debug = true ]; then
+      if [ ! -f "$lang_folder/debugcompile" ]; then
+        echo_warning "Warning compiling solution: language doesn't have debug compile script, use default compile instead"
+        local debug=false
+      else
+        local compile_script="$lang_folder/debugcompile"
       fi
     fi
-  done
 
-  echo "Error compiling solution: language definition doesn't exists"
-  exit 1
+    local DEST=".cptool/$solution"
+    if [ $debug = true ]; then
+      local DEST="${DEST}_test"
+    fi
+    local SOURCE="$current_source_code"
+    mkdir -p `dirname $DEST`
+
+    if [ "$DEST" -nt "$SOURCE" ]; then
+      echo_warning "Skip compiling solution: no change in solution"
+      exit 0
+    fi
+
+    eval "DEST=\"$DEST\" SOURCE=\"$SOURCE\" $compile_script"
+    if [ $? -eq 0 ]; then
+      echo_success "Success compiling solution: $solution"
+      exit 0
+    else
+      echo_error "Error compiling solution: compilation script failed"
+      exit 1
+    fi
+  else
+    echo_error "Error compiling solution: language definition doesn't exists"
+    exit 1
+  fi
 }
 
 DEFAULT_LANGUAGE="cpp"
@@ -120,7 +102,7 @@ do
 done
 
 if [ -z "$LANGUAGE" ]; then
-  echo "Error: please specify solution name."
+  echo_error "Error: please specify solution name."
   print_usage
   exit 1
 elif [ -z "$SOLUTION" ]; then

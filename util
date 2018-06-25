@@ -1,0 +1,58 @@
+#!/bin/bash
+
+CPTOOL_DIR=`dirname $0`
+
+get_version() {
+  cat "$CPTOOL_DIR/VERSION"
+}
+
+print_error() {
+  printf "\033[0;31m`echo $@`\033[0m"
+}
+
+print_success() {
+  printf "\033[0;32m`echo $@`\033[0m"
+}
+
+print_warning() {
+  printf "\033[0;33m`echo $@`\033[0m"
+}
+
+echo_error() {
+  print_error $@
+  echo ""
+}
+
+echo_success() {
+  print_success $@
+  echo ""
+}
+
+echo_warning() {
+  print_warning $@
+  echo ""
+}
+
+is_folder_language() {
+  local folder=$1
+  if [ -f "$folder/lang.conf" ] && [ -f "$folder/compile" ] && [ -f "$folder/run" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+get_language() {
+  local lang=$1
+  for lang_folder in "$CPTOOL_DIR"/langs/*
+  do
+    local lang_name=`basename "$lang_folder"`
+    is_folder_language "$lang_folder"
+    local is_language=$?
+    if [ "$lang" = "$lang_name" ] && [ $is_language -eq 0 ]; then
+      echo "$lang_folder"
+      return 0
+    fi
+  done
+  return 1
+}
