@@ -64,17 +64,21 @@ test_solution() {
       fi
 
       if [ $SHOW_STDOUT = true ]; then
+        echo ""
         echo "program stdout:"
         cat "$output_file"
       fi
 
       if [ $SHOW_DIFF = true ]; then
+        echo ""
         echo "output diffs:"
         echo $diff_text
       fi
     else
       show_warning skip comparing output file, "$testcase_out" doesn\'t exists
     fi
+
+    echo ""
 
   done
 }
