@@ -56,10 +56,17 @@ get_solution_target_path() {
   local lang="$2"
   local solution="$3"
   if [ $debug = true ]; then
-    echo ".cptool/solutions/$solution/${lang}_debug"
+    echo ".cptool/programs/$solution/${lang}_debug"
   else
-    echo ".cptool/solutions/$solution/$lang"
+    echo ".cptool/programs/$solution/$lang"
   fi
+}
+
+get_solution_test_path() {
+  local lang="$1"
+  local solution="$2"
+  local test="$3"
+  echo ".cptool/tests/$solution/$lang/$test.out"
 }
 
 get_language() {

@@ -34,7 +34,8 @@ run_solution() {
     exit $?
   fi
 
-  local lang_folder=`get_language "$language"`
+  local lang_folder
+  lang_folder=`get_language "$language"`
   if [ $? -eq 0 ]; then
     . "$lang_folder/lang.conf"
     if [ -z "$verbose_name" ]; then
