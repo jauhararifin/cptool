@@ -46,7 +46,7 @@ run_solution() {
 
     local PROGRAM=`get_solution_target_path false "$language" "$solution"`
     if [ ! -f $PROGRAM ]; then
-      echo_error "Error running solution: file $PROGRAM doesn't exists"
+      show_error "file $PROGRAM doesn't exists when running solution"
       exit 1
     fi
 
@@ -58,15 +58,15 @@ run_solution() {
     fi
 
     if [ $? -eq 0 ]; then
-      echo_success "Success running solution: $solution"
+      show_success "$solution exit successfully"
       exit 0
     else
-      echo_error "Error running solution: run script failed"
+      show_error "run script failed when running solution"
       exit 1
     fi
 
   else
-    echo_error "Error running solution: language definition doesn't exists"
+    show_error "language definition doesn't exists when running solution"
     exit 1
   fi
 }
@@ -113,7 +113,7 @@ do
 done
 
 if [ -z "$LANGUAGE" ]; then
-  echo "Error: please specify solution name."
+  show_error "please specify solution name."
   print_usage
   exit 1
 elif [ -z "$SOLUTION" ]; then

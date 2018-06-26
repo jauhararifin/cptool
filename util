@@ -6,31 +6,40 @@ get_version() {
   cat "$CPTOOL_DIR/VERSION"
 }
 
-print_error() {
-  printf "\033[0;31m`echo $@`\033[0m"
+print_color_error() {
+  printf "\033[0;31m`echo "$@"`\033[0m"
 }
 
-print_success() {
-  printf "\033[0;32m`echo $@`\033[0m"
+print_color_success() { 
+  printf "\033[0;32m`echo "$@"`\033[0m" 
 }
 
-print_warning() {
-  printf "\033[0;33m`echo $@`\033[0m"
+print_color_warning() { 
+  printf "\033[0;33m`echo "$@"`\033[0m"
 }
 
-echo_error() {
-  print_error $@
-  echo ""
+print_color_info() {
+  printf "\033[0;34m`echo "$@"`\033[0m"
 }
 
-echo_success() {
-  print_success $@
-  echo ""
+show_error() {
+  print_color_error "[  Error  ] "
+  echo $@
 }
 
-echo_warning() {
-  print_warning $@
-  echo ""
+show_success() {
+  print_color_success "[ Success ] "
+  echo $@
+}
+
+show_warning() {
+  print_color_warning "[ Warning ] "
+  echo $@
+}
+
+show_info() {
+  print_color_info "[  Info   ] "
+  echo $@
 }
 
 is_folder_language() {

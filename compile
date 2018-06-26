@@ -33,15 +33,15 @@ compile_solution() {
     fi
 
     local current_source_code="$solution.$extension"
-    if [ ! -f $current_source_code ]; then
-      echo_error "Error compiling solution: file $current_source_code not found"
+    if [ ! -f "$current_source_code" ]; then
+      show_error "file "$current_source_code" doesn't exists when compiling solution"
       exit 1
     fi
 
     local compile_script="$lang_folder/compile"
     if [ $debug = true ]; then
       if [ ! -f "$lang_folder/debugcompile" ]; then
-        echo_warning "Warning compiling solution: language doesn't have debug compile script, use default compile instead"
+        show_warning "language doesn't have debug compile script, use default compile instead"
         local debug=false
       else
         local compile_script="$lang_folder/debugcompile"
@@ -56,20 +56,20 @@ compile_solution() {
     mkdir -p `dirname $DEST`
 
     if [ "$DEST" -nt "$SOURCE" ]; then
-      echo_warning "Skip compiling solution: no change in solution"
+      show_info "skip compiling solution because no change in solution"
       exit 0
     fi
 
     eval "DEST=\"$DEST\" SOURCE=\"$SOURCE\" $compile_script"
     if [ $? -eq 0 ]; then
-      echo_success "Success compiling solution: $solution"
+      show_success "$solution compiled successfully"
       exit 0
     else
-      echo_error "Error compiling solution: compilation script failed"
+      show_error "compilation script failed when compiling solution"
       exit 1
     fi
   else
-    echo_error "Error compiling solution: language definition doesn't exists"
+    show_error "language definition doesn't exists when compiling solution"
     exit 1
   fi
 }
@@ -105,7 +105,7 @@ do
 done
 
 if [ -z "$LANGUAGE" ]; then
-  echo_error "Error: please specify solution name."
+  show_error "please specify solution name."
   print_usage
   exit 1
 elif [ -z "$SOLUTION" ]; then
