@@ -24,10 +24,10 @@ print_usage() {
 }
 
 run_solution() {
-  local hide_time="$1"
-  local timeout="$2"
-  local language="$3"
-  local solution="$4"
+  local hide_time="$HIDE_TIME"
+  local timeout="$TIMEOUT"
+  local language="$1"
+  local solution="$2"
 
   $CPTOOL_DIR/compile "$language" "$solution"
   if [ $? -ne 0 ]; then
@@ -121,4 +121,4 @@ elif [ -z "$SOLUTION" ]; then
   LANGUAGE="$DEFAULT_LANGUAGE"
 fi
 
-run_solution $HIDE_TIME "$TIMEOUT" "$LANGUAGE" "$SOLUTION"
+run_solution "$LANGUAGE" "$SOLUTION"

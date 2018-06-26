@@ -18,9 +18,9 @@ print_usage() {
 }
 
 compile_solution() {
-  local debug="$1"
-  local language="$2"
-  local solution="$3"
+  local debug="$DEBUG"
+  local language="$1"
+  local solution="$2"
 
   local lang_folder=`get_language "$language"`
   if [ $? -eq 0 ]; then
@@ -113,4 +113,4 @@ elif [ -z "$SOLUTION" ]; then
   LANGUAGE="$DEFAULT_LANGUAGE"
 fi
 
-compile_solution "$DEBUG" "$LANGUAGE" "$SOLUTION"
+compile_solution "$LANGUAGE" "$SOLUTION"
