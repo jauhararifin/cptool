@@ -22,8 +22,8 @@ compile_solution() {
   local language="$1"
   local solution="$2"
 
-  local lang_folder=`get_language "$language"`
-  if [ $? -eq 0 ]; then
+  local lang_folder=$(get_language "$language")
+  if [ ! -z "$lang_folder" ] && [ $? -eq 0 ]; then
     . "$lang_folder/lang.conf"
     if [ -z "$verbose_name" ]; then
       local verbose_name="$name";
