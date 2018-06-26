@@ -23,23 +23,23 @@ print_color_info() {
 }
 
 show_error() {
-  print_color_error "[  Error  ] "
-  echo $@
+  >&2 print_color_error "[  Error  ] "
+  >&2 echo $@
 }
 
 show_success() {
-  print_color_success "[ Success ] "
-  echo $@
+  >&2 print_color_success "[ Success ] "
+  >&2 echo $@
 }
 
 show_warning() {
-  print_color_warning "[ Warning ] "
-  echo $@
+  >&2 print_color_warning "[ Warning ] "
+  >&2 echo $@
 }
 
 show_info() {
-  print_color_info "[  Info   ] "
-  echo $@
+  >&2 print_color_info "[  Info   ] "
+  >&2 echo $@
 }
 
 is_folder_language() {
