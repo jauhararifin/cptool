@@ -17,6 +17,7 @@ print_usage() {
   echo "Available commands:"
   echo "  compile      Compile your solution"
   echo "  run          Run your solution. This will compile first if not yet compiled."
+  echo "  test         Run your solution using some testcases"
   echo ""
 }
 
@@ -34,6 +35,9 @@ do
     exit $?
   elif [ $arg = "run" ]; then
     "$CPTOOL_DIR/run" ${@:$i}
+    exit $?
+  elif [ $arg = "test" ]; then
+    "$CPTOOL_DIR/test" ${@:$i}
     exit $?
   else
     print_usage
