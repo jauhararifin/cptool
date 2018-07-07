@@ -19,7 +19,8 @@ print_usage() {
   echo "  -t, --timeout TIME  Kill program if still running after TIME"
   echo "                      TIME is a floating point number with an optional suffix:"
   echo "                      's' for seconds (the default), 'm' for minutes, 'h' for hours or 'd' for days"
-  echo "                      The default value of this option is 10s"
+  echo "                      The default value of this option is 10s. This option only works if the program is"
+  echo "                      running using stdin from file and not from terminal."
   echo ""
 }
 
@@ -53,9 +54,17 @@ run_solution() {
 
     export PROGRAM="$PROGRAM"
     if [ $hide_time = true ]; then
-      eval "timeout -k $timeout $timeout \"$lang_folder/run\""
+      if [ -t 0 ]; then
+        $lang_folder/run
+      else
+        timeout -k $timeout $timeout $lang_folder/run
+      fi
     else
-      eval "time timeout -k $timeout $timeout \"$lang_folder/run\""
+      if [ -t 0 ]; then
+        time $lang_folder/run
+      else
+        time timeout -k $timeout $timeout $lang_folder/run
+      fi
     fi
 
     if [ $? -eq 0 ]; then
