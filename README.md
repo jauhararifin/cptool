@@ -128,7 +128,27 @@ The currently available language are `cpp`, `c`, and `pas` (for free pascal).
 
 ## Running Solution
 
-After compiling solution, the executable file should exists in folder `.cptool`. You can find your compiled solution there and run it. However, the easiest way to run your solution is using this command `cptool run <solution-name>` or `cptool run <language-name> <solution-name>` to specify the language. The solution will be compiled first if not yet compiled. After that, this command will run your solution in command line interface.
+To run your solution, you can use `cptool run` command. This command will compile your solution first if its not compiled yet. When you run this command twice, the compilation process is skipped. The solution will compiled again when your solution change or the `.cptool` directory is removed. Use this command to run your solution
+
+```
+cptool run <solution-name>
+```
+or you can specify the solution language using this command:
+```
+cptool run <language-name> <solution-name>
+```
+
+The running solution will have timeout, default is 10 seconds. Your solution will be killed when your solution is running over this amount of time. You can specify this time using `-t` or `--timeout` flag like this:
+
+```
+cptool run -t 5s <solution-name>
+```
+or
+```
+cptool run -t 5s <language-name> <solution-name>
+```
+
+use suffix 's' for second, 'm' for minutes and 'h' for hours in the timeout parameter.
 
 ## Testing Solution
 
