@@ -152,7 +152,21 @@ use suffix 's' for second, 'm' for minutes and 'h' for hours in the timeout para
 
 ## Testing Solution
 
-TBD
+For testing your solution, you need to have testcase file. A single testcase is consist of two files, the first file is input file and the second is output file. The input file is a plain text file that has `.in` extension and output has `.out` extension. In a single testcase, the input file and the output file must has the same basename (filename without extension). `tc1.in` and `tc`.out` is the valid example of a single testcase files.
+
+For testing your program using predefined testcase, you can use `cptool test` command like this
+
+```
+cptool test <solution-name> <testcase-prefix>
+```
+or you can specify your solution language
+```
+cptool test <language-name> <solution-name> <testcase-prefix>
+```
+
+The testcase prefix is filename prefix of your testcase file. For example, the testcase `tc1` will has all of this prefix: "t", "tc", "tc1". You can run your solution like this `cptool run solution tc`. It will test your solution will all testcases that has "tc" as its prefix.
+
+You can add timeout parameter too like this `cptool test --timeout 5s <solution-name>`, just like the `cptool run` command. In addition you can add `-s` and `-d` flag. `-s` or `--show-stdout` is used to show the output of your solution in the terminal. `-d` or `--show-diff` is used to show the difference between your output and expected output from the testcase's output file. `-d` or `--show-diff` flag only show the diff when your solution answer is different from the expected output.
 
 ## Adding New Language
 
