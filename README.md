@@ -104,7 +104,27 @@ It will run (and compile if necessary) your solution using testcase as input and
 
 ## Compile Solution
 
-Your solution should contain only one file with this format: `<solution-name>.<language-extension>`. To compile your solution, just run `cptool compile <solution-name>`, this will compile your solution with default language, which is c++. To compile with other language just run `cptool compile <language-name> <solution-name>`, this will compile your solution using specific language.
+Your solution should contain only one file with this format: `<solution-name>.<language-extension>`. The example of valid solution file is `helloworld.cpp` file, this file is considered as a c++ solution named `helloworld`.
+
+To compile your solution, just run
+```
+cptool compile <solution-name>
+```
+This will compile your solution with default language, which is c++. The compiled program will placed inside `.cptool` directory inside your working directory. To compile with other language just run 
+```
+cptool compile <language-name> <solution-name>
+```
+This will compile your solution using specific language. Some language can be compiled in debug mode. For compiling your solution in debug mode, use `-d` flag in compilation command like this:
+
+```
+cptool run -d <solution-name>
+```
+or
+```
+cptool run -d <language-name> <solution-name>
+```
+
+The currently available language are `cpp`, `c`, and `pas` (for free pascal).
 
 ## Running Solution
 
