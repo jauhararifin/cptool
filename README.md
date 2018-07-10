@@ -11,7 +11,7 @@ When competing in programming competition, we always need to compile our program
 Run this command in your bash shell for installing cptool:
 
 ```
-curl -L -s https://raw.githubusercontent.com/cp-itb/cptool/master/install.sh | bash
+curl -L -s https://raw.githubusercontent.com/jauhararifin/cptool/master/install.sh | bash
 ```
 
 It will download this repository and copy to your computer. You may need to close your shell and open it again to start using this tool. Just run `cptool --version` command to check your installation.
