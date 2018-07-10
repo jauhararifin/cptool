@@ -170,4 +170,22 @@ You can add timeout parameter too like this `cptool test --timeout 5s <solution-
 
 ## Adding New Language
 
-TBD
+Cptool currently support three languages: C, C++, Pascal. The language is defined in `langs` directory in your installation folder (default is `~/.cptool`). You can add new language by adding new folder in that directory (`<installation-directory>/langs`). The folder name will be the language name. Inside that folder you need to add four files: `compile`, `debugcompile`, `run`, and `lang.conf`
+
+- `compile` script
+Cptool need to know how to compile the source code solution, The `compile` file contains bash script to compile the source code. You have to specify compilation command in this file. you will receive environment variable `DEST` and `SOURCE` in order to locate the source code location and compiled target. `SOURCE` variable contains the path of your solution file. The `DEST` variable is location where you should put the compiled file. If the compilation is successfull this script must return 0 to the operating system.
+
+- `debugcompile` script
+Sometimes compiler has ability to compile source code in debug mode, you have to specify compilation command to compile the source code in debug mode. This script will also receive `DEST` and `SOURCE` variable just like `compile` script.
+
+- `run` script
+You have to specify how to run your solution in this file. This script will receive an environment variable, `PROGRAM` variable. `PROGRAM` variable contain location of your compiled program path. When the program is exited normally, this script must return 0 to the operating system.
+
+- `lang.conf` file
+This file contain information about the language. Actually it just need two information: language verbose name and language extension. Language verbose name is just like your language displayed name, but your language name is the folder name. The language extension is the extension of your solution file, for example: the c language has `c` as language extension, pascal language has `pas` as language extension.
+The format of this file is:
+
+```
+verbose_name=<language-verbose-name>
+extension=<language-extension>
+```
