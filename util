@@ -6,6 +6,10 @@ get_version() {
   cat "$CPTOOL_DIR/VERSION"
 }
 
+print_version() {
+  echo v`get_version`
+}
+
 print_color_error() {
   printf "\033[0;31m`echo "$@"`\033[0m"
 }
