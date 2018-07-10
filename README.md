@@ -18,6 +18,8 @@ It will download this repository and copy to your computer. You may need to clos
 
 ## Quick Start
 
+[![asciicast](https://asciinema.org/a/ceuBd0zhPMkUNQItWLXFJ6hv0.png)](https://asciinema.org/a/14)
+
 There are some term you need to understand in order to using this tool.
 
 1. Language
