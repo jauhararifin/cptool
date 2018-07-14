@@ -15,10 +15,10 @@ type Language struct {
 	Extension   string
 	VerboseName string
 
-	compileScript string
-	runScript     string
-	debugScript   string
-	debuggable    bool
+	CompileScript string
+	RunScript     string
+	DebugScript   string
+	Debuggable    bool
 }
 
 // ErrInvalidLanguageDirectory indicates directory is not a valid language definition
@@ -31,12 +31,17 @@ var ErrInvalidLanguageConfigurationFile = errors.New("Invalid language configura
 var ErrNoSuchLanguage = errors.New("No such language")
 
 type languageConfFile struct {
-	verboseName string `toml:"verbose_name"`
-	extension   string `toml:"extension"`
+	VerboseName string `toml:"verbose_name"`
+	Extension   string `toml:"extension"`
 }
 
 func getLanguagesPaths() []string {
-	return []string{"/etc/cptool/langs", "/home/jauhararifin/.cptool/langs"}
+	configurationPaths := GetConfigurationPaths()
+	langPaths := make([]string, 0)
+	for _, confPath := range configurationPaths {
+		langPaths = append(langPaths, path.Join(confPath, "langs"))
+	}
+	return langPaths
 }
 
 func checkDirExists(path string) bool {
@@ -56,7 +61,7 @@ func checkFileExists(filepath string) bool {
 // GetLanguageFromDirectory extract language information from specific directory
 func GetLanguageFromDirectory(languagePath string) (*Language, error) {
 	info, err := os.Stat(languagePath)
-	if err != nil || info.IsDir() {
+	if err != nil || !info.IsDir() {
 		return nil, ErrInvalidLanguageDirectory
 	}
 
@@ -68,31 +73,31 @@ func GetLanguageFromDirectory(languagePath string) (*Language, error) {
 	configPath := path.Join(languagePath, "lang.conf")
 	if checkFileExists(configPath) {
 		languageConf := languageConfFile{}
-		if _, err = toml.Decode(configPath, &languageConf); err != nil {
+		if _, err = toml.DecodeFile(configPath, &languageConf); err != nil {
 			return nil, ErrInvalidLanguageConfigurationFile
 		}
-		if len(languageConf.verboseName) == 0 {
-			languageConf.verboseName = language.Name
+		if len(languageConf.VerboseName) > 0 {
+			language.VerboseName = languageConf.VerboseName
 		}
-		if len(languageConf.extension) == 0 {
-			languageConf.extension = language.Name
+		if len(languageConf.Extension) > 0 {
+			language.Extension = languageConf.Extension
 		}
 	}
 
-	language.compileScript = path.Join(languagePath, "compile")
-	if !checkFileExists(language.compileScript) {
+	language.CompileScript = path.Join(languagePath, "compile")
+	if !checkFileExists(language.CompileScript) {
 		return nil, ErrInvalidLanguageDirectory
 	}
 
-	language.runScript = path.Join(languagePath, "run")
-	if !checkFileExists(language.runScript) {
+	language.RunScript = path.Join(languagePath, "run")
+	if !checkFileExists(language.RunScript) {
 		return nil, ErrInvalidLanguageDirectory
 	}
 
-	debugScript := path.Join(languagePath, "debugcompile")
-	if checkFileExists(debugScript) {
-		language.debuggable = true
-		language.debugScript = debugScript
+	DebugScript := path.Join(languagePath, "debugcompile")
+	if checkFileExists(DebugScript) {
+		language.Debuggable = true
+		language.DebugScript = DebugScript
 	}
 
 	return language, nil
@@ -110,6 +115,9 @@ func GetAllLanguages() ([]Language, map[string]Language) {
 		filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
 			if info.IsDir() {
 				if lang, err := GetLanguageFromDirectory(path); err == nil {
+					if _, ok := langMap[lang.Name]; ok {
+						return nil
+					}
 					langMap[lang.Name] = *lang
 				}
 			}

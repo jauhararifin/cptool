@@ -14,8 +14,8 @@ var langCommand = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		languages, _ := core.GetAllLanguages()
 		for _, lang := range languages {
-			fmt.Printf("[ %s ]\n", lang.VerboseName)
-			fmt.Printf("  language name:  %s\n", lang.Name)
+			fmt.Printf("[ %s ]\n", lang.Name)
+			fmt.Printf("  language name:  %s\n", lang.VerboseName)
 			fmt.Printf("  file extension: %s\n", lang.Extension)
 			fmt.Printf("  compile script: %s\n", lang.CompileScript)
 			fmt.Printf("  run script:     %s\n", lang.RunScript)
