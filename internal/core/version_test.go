@@ -6,7 +6,7 @@ import (
 )
 
 func TestGetVersion(t *testing.T) {
-	version := GetVersion()
+	version := newTest().GetVersion()
 	if version != fmt.Sprint("v", MajorVersion, ".", MinorVersion, ".", PatchVersion) {
 		t.Fail()
 	}
