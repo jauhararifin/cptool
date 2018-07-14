@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/jauhararifin/cptool/internal/version"
+	"github.com/jauhararifin/cptool/internal/core"
 	"github.com/spf13/cobra"
 )
 
@@ -11,7 +11,7 @@ var runCommand = &cobra.Command{
 	Long: "Run competitive programming solution. The program will compiled first if not yet compiled. The program\n" +
 		"will be killed if still running after some period of time, you can change this behaviour using --timeout\n" +
 		"option",
-	Version: version.GetVersion(),
+	Version: core.GetVersion(),
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},
