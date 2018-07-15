@@ -130,11 +130,11 @@ func (cptool *CPTool) GetAllLanguages() ([]Language, map[string]Language) {
 }
 
 // GetLanguageByName returns language that has specific name
-func (cptool *CPTool) GetLanguageByName(name string) (*Language, error) {
+func (cptool *CPTool) GetLanguageByName(name string) (Language, error) {
 	if lang, ok := cptool.languages[name]; ok {
-		return &lang, nil
+		return lang, nil
 	}
-	return nil, ErrNoSuchLanguage
+	return Language{}, ErrNoSuchLanguage
 }
 
 // GetLanguageByExtension returns language that has specific extension

@@ -386,3 +386,45 @@ func TestGetAllLanguages(t *testing.T) {
 		t.Error("language list should contain exactly the value of language map")
 	}
 }
+
+func TestGetLanguageByName(t *testing.T) {
+	cptool := newTest()
+	cptool.languages["lang_a"] = Language{
+		Name:          "lang_a",
+		Extension:     "a",
+		VerboseName:   "Language A",
+		CompileScript: "/etc/cptool/langs/lang_a/compile",
+		RunScript:     "/etc/cptool/langs/lang_a/run",
+		DebugScript:   "",
+		Debuggable:    false,
+	}
+
+	lang, err := cptool.GetLanguageByName("lang_a")
+	if err != nil {
+		t.Error("GetLanguageByName should return the language with the right name")
+	}
+	if lang != cptool.languages["lang_a"] {
+		t.Error("GetLanguageByName should return", lang)
+	}
+}
+
+func TestGetLanguageByNameWithUndefinedLanguage(t *testing.T) {
+	cptool := newTest()
+	cptool.languages["lang_a"] = Language{
+		Name:          "lang_a",
+		Extension:     "a",
+		VerboseName:   "Language A",
+		CompileScript: "/etc/cptool/langs/lang_a/compile",
+		RunScript:     "/etc/cptool/langs/lang_a/run",
+		DebugScript:   "",
+		Debuggable:    false,
+	}
+
+	_, err := cptool.GetLanguageByName("lang_c")
+	if err == nil {
+		t.Error("GetLanguageByName should return error")
+	}
+	if err != ErrNoSuchLanguage {
+		t.Error("GetLanguageByName should return ErrNoSuchLanguage error")
+	}
+}
