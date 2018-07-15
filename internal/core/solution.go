@@ -2,7 +2,6 @@ package core
 
 import (
 	"errors"
-	"os"
 	"path"
 	"time"
 )
@@ -22,13 +21,7 @@ var ErrNoSuchSolution = errors.New("No such solution exists")
 func (cptool *CPTool) GetSolution(name string, language Language) (Solution, error) {
 	solutionPath := path.Join(cptool.workingDirectory, name+"."+language.Extension)
 	info, err := cptool.fs.Stat(solutionPath)
-	if os.IsNotExist(err) {
-		return Solution{}, ErrNoSuchSolution
-	}
-	if err != nil {
-		return Solution{}, err
-	}
-	if info.IsDir() {
+	if err != nil || info.IsDir() {
 		return Solution{}, ErrNoSuchSolution
 	}
 

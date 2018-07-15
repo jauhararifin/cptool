@@ -1,6 +1,7 @@
 package core
 
 import (
+	"os"
 	"path"
 	"testing"
 )
@@ -43,5 +44,35 @@ func TestGetSolutionInsideDirectory(t *testing.T) {
 	}
 	if solution.Language != language {
 		t.Error("language solution does not match")
+	}
+}
+
+func TestGetSolutionNotExists(t *testing.T) {
+	cptool := newTest()
+	language := Language{Extension: "c"}
+
+	_, err := cptool.GetSolution("a", language)
+	if err == nil {
+		t.Error("should return error when solution does not exists")
+	}
+	if err != ErrNoSuchSolution {
+		t.Error("should return no such solution error when solution does not exists")
+	}
+}
+
+func TestGetSolutionIsDirectory(t *testing.T) {
+	cptool := newTest()
+	language := Language{Extension: "custom_extension"}
+	err := cptool.fs.MkdirAll(path.Join(cptool.workingDirectory, "a.custom_extension"), os.ModePerm)
+	if err != nil {
+		t.Error(err)
+	}
+
+	_, err = cptool.GetSolution("a", language)
+	if err == nil {
+		t.Error("should return error when solution does not exists")
+	}
+	if err != ErrNoSuchSolution {
+		t.Error("should return no such solution error when solution does not exists")
 	}
 }

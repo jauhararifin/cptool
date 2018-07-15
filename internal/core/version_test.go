@@ -6,8 +6,10 @@ import (
 )
 
 func TestGetVersion(t *testing.T) {
-	version := newTest().GetVersion()
-	if version != fmt.Sprint("v", MajorVersion, ".", MinorVersion, ".", PatchVersion) {
-		t.Fail()
+	cptool := newTest()
+	version := cptool.GetVersion()
+	expected := fmt.Sprint("v", cptool.MajorVersion, ".", cptool.MinorVersion, ".", cptool.PatchVersion)
+	if version != expected {
+		t.Errorf("version should be %s, got %s", expected, version)
 	}
 }
