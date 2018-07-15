@@ -428,3 +428,51 @@ func TestGetLanguageByNameWithUndefinedLanguage(t *testing.T) {
 		t.Error("GetLanguageByName should return ErrNoSuchLanguage error")
 	}
 }
+
+func TestGetDefaultLanguage(t *testing.T) {
+	cptool := newTest()
+	cptool.languages["lang_a"] = Language{
+		Name:          "lang_a",
+		Extension:     "a",
+		VerboseName:   "Language A",
+		CompileScript: "/etc/cptool/langs/lang_a/compile",
+		RunScript:     "/etc/cptool/langs/lang_a/run",
+		DebugScript:   "",
+		Debuggable:    false,
+	}
+	cptool.languages["lang_b"] = Language{
+		Name:          "lang_b",
+		Extension:     "b",
+		VerboseName:   "Language B",
+		CompileScript: "/etc/cptool/langs/lang_b/compile",
+		RunScript:     "/etc/cptool/langs/lang_b/run",
+		DebugScript:   "",
+		Debuggable:    false,
+	}
+	cptool.languages["lang_c"] = Language{
+		Name:          "lang_c",
+		Extension:     "c",
+		VerboseName:   "Language C",
+		CompileScript: path.Join(cptool.workingDirectory, ".cptool/langs/lang_c/compile"),
+		RunScript:     path.Join(cptool.workingDirectory, ".cptool/langs/lang_c/run"),
+		DebugScript:   "",
+		Debuggable:    false,
+	}
+
+	defaultLang, _ := cptool.GetDefaultLanguage()
+	langs, _ := cptool.GetAllLanguages()
+	if defaultLang != langs[0] && defaultLang != langs[1] && defaultLang != langs[2] {
+		t.Error("GetDefaultLanguage should return", langs[0], "or", langs[1], "or", langs[2])
+	}
+}
+
+func TestGetDefaultLanguageWithoutKnownLanguage(t *testing.T) {
+	cptool := newTest()
+	_, err := cptool.GetDefaultLanguage()
+	if err == nil {
+		t.Error("GetDefaultLanguage should return error")
+	}
+	if err != ErrNoSuchLanguage {
+		t.Error("GetDefaultLanguage should return ErrNoSuchLanguage error")
+	}
+}

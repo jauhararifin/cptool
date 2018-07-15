@@ -44,13 +44,13 @@ func (cptool *CPTool) getLanguagesPaths() []string {
 	return langPaths
 }
 
-func (cptool *CPTool) getLanguageFromDirectory(languagePath string) (*Language, error) {
+func (cptool *CPTool) getLanguageFromDirectory(languagePath string) (Language, error) {
 	info, err := cptool.fs.Stat(languagePath)
 	if err != nil || !info.IsDir() {
-		return nil, ErrInvalidLanguageDirectory
+		return Language{}, ErrInvalidLanguageDirectory
 	}
 
-	language := &Language{}
+	language := Language{}
 	language.Name = info.Name()
 	language.VerboseName = language.Name
 	language.Extension = language.Name
@@ -61,7 +61,7 @@ func (cptool *CPTool) getLanguageFromDirectory(languagePath string) (*Language, 
 		configFile, _ := cptool.fs.Open(configPath)
 		languageConf := languageConfFile{}
 		if _, err = toml.DecodeReader(configFile, &languageConf); err != nil {
-			return nil, ErrInvalidLanguageConfigurationFile
+			return Language{}, ErrInvalidLanguageConfigurationFile
 		}
 		if len(languageConf.VerboseName) > 0 {
 			language.VerboseName = languageConf.VerboseName
@@ -74,19 +74,19 @@ func (cptool *CPTool) getLanguageFromDirectory(languagePath string) (*Language, 
 	language.CompileScript = path.Join(languagePath, "compile")
 	info, err = cptool.fs.Stat(language.CompileScript)
 	if err != nil {
-		return nil, err
+		return Language{}, err
 	}
 	if info.IsDir() {
-		return nil, ErrInvalidLanguageDirectory
+		return Language{}, ErrInvalidLanguageDirectory
 	}
 
 	language.RunScript = path.Join(languagePath, "run")
 	info, err = cptool.fs.Stat(language.RunScript)
 	if err != nil {
-		return nil, err
+		return Language{}, err
 	}
 	if info.IsDir() {
-		return nil, ErrInvalidLanguageDirectory
+		return Language{}, ErrInvalidLanguageDirectory
 	}
 
 	DebugScript := path.Join(languagePath, "debugcompile")
@@ -112,7 +112,7 @@ func (cptool *CPTool) loadAllLanguages() {
 					if _, ok := cptool.languages[lang.Name]; ok {
 						return nil
 					}
-					cptool.languages[lang.Name] = *lang
+					cptool.languages[lang.Name] = lang
 				}
 			}
 			return nil
@@ -137,17 +137,6 @@ func (cptool *CPTool) GetLanguageByName(name string) (Language, error) {
 	return Language{}, ErrNoSuchLanguage
 }
 
-// GetLanguageByExtension returns language that has specific extension
-func (cptool *CPTool) GetLanguageByExtension(extension string) []Language {
-	results := make([]Language, 0)
-	for _, lang := range cptool.languages {
-		if lang.Extension == extension {
-			results = append(results, lang)
-		}
-	}
-	return results
-}
-
 // GetDefaultLanguage returns default language
 func (cptool *CPTool) GetDefaultLanguage() (Language, error) {
 	languages, _ := cptool.GetAllLanguages()
@@ -155,15 +144,4 @@ func (cptool *CPTool) GetDefaultLanguage() (Language, error) {
 		return Language{}, ErrNoSuchLanguage
 	}
 	return languages[0], nil
-}
-
-// GetDefaultLanguageForExtension returns default language with specific extension
-func (cptool *CPTool) GetDefaultLanguageForExtension(extension string) (*Language, error) {
-	languages, _ := cptool.GetAllLanguages()
-	for _, lang := range languages {
-		if lang.Extension == extension {
-			return &lang, nil
-		}
-	}
-	return nil, ErrNoSuchLanguage
 }
