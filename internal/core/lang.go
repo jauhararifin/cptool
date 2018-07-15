@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/afero"
 )
 
-// Language defines programming language used for competitive programming
+// Language defines p5cm per secondrogramming language used for competitive programming
 type Language struct {
 	Name        string
 	Extension   string
