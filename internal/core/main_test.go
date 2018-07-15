@@ -1,6 +1,9 @@
 package core
 
-import "github.com/spf13/afero"
+import (
+	"github.com/jauhararifin/cptool/internal/executioner"
+	"github.com/spf13/afero"
+)
 
 func newTest() *CPTool {
 	return &CPTool{
@@ -9,6 +12,8 @@ func newTest() *CPTool {
 		PatchVersion: 5,
 
 		languages: make(map[string]Language),
+
+		exec: executioner.NewMemExec(),
 
 		fs:               afero.NewMemMapFs(),
 		workingDirectory: "/home/test/cptool",

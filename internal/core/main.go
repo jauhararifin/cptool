@@ -4,6 +4,7 @@ import (
 	"os"
 	"os/user"
 
+	"github.com/jauhararifin/cptool/internal/executioner"
 	"github.com/spf13/afero"
 )
 
@@ -23,6 +24,8 @@ type CPTool struct {
 	PatchVersion int
 
 	languages map[string]Language
+
+	exec executioner.Exec
 
 	fs               afero.Fs
 	workingDirectory string
@@ -47,6 +50,8 @@ func NewDefault() (*CPTool, error) {
 		PatchVersion: PatchVersion,
 
 		languages: make(map[string]Language),
+
+		exec: executioner.NewOSExec(),
 
 		fs:               afero.NewOsFs(),
 		workingDirectory: cwd,
