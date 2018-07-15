@@ -4,9 +4,9 @@ import (
 	"errors"
 	"os"
 	"path"
-	"path/filepath"
 
 	"github.com/BurntSushi/toml"
+	"github.com/spf13/afero"
 )
 
 // Language defines programming language used for competitive programming
@@ -35,8 +35,8 @@ type languageConfFile struct {
 	Extension   string `toml:"extension"`
 }
 
-func getLanguagesPaths() []string {
-	configurationPaths := GetConfigurationPaths()
+func (cptool *CPTool) getLanguagesPaths() []string {
+	configurationPaths := cptool.GetConfigurationPaths()
 	langPaths := make([]string, 0)
 	for _, confPath := range configurationPaths {
 		langPaths = append(langPaths, path.Join(confPath, "langs"))
@@ -44,23 +44,8 @@ func getLanguagesPaths() []string {
 	return langPaths
 }
 
-func checkDirExists(path string) bool {
-	if info, err := os.Stat(path); err != nil || !info.IsDir() {
-		return false
-	}
-	return true
-}
-
-func checkFileExists(filepath string) bool {
-	if info, err := os.Stat(filepath); err != nil || info.IsDir() {
-		return false
-	}
-	return true
-}
-
-// GetLanguageFromDirectory extract language information from specific directory
-func GetLanguageFromDirectory(languagePath string) (*Language, error) {
-	info, err := os.Stat(languagePath)
+func (cptool *CPTool) getLanguageFromDirectory(languagePath string) (*Language, error) {
+	info, err := cptool.fs.Stat(languagePath)
 	if err != nil || !info.IsDir() {
 		return nil, ErrInvalidLanguageDirectory
 	}
@@ -71,7 +56,8 @@ func GetLanguageFromDirectory(languagePath string) (*Language, error) {
 	language.Extension = language.Name
 
 	configPath := path.Join(languagePath, "lang.conf")
-	if checkFileExists(configPath) {
+	info, err = cptool.fs.Stat(configPath)
+	if err == nil && !info.IsDir() {
 		languageConf := languageConfFile{}
 		if _, err = toml.DecodeFile(configPath, &languageConf); err != nil {
 			return nil, ErrInvalidLanguageConfigurationFile
@@ -85,17 +71,25 @@ func GetLanguageFromDirectory(languagePath string) (*Language, error) {
 	}
 
 	language.CompileScript = path.Join(languagePath, "compile")
-	if !checkFileExists(language.CompileScript) {
+	info, err = cptool.fs.Stat(language.CompileScript)
+	if err != nil {
+		return nil, err
+	}
+	if info.IsDir() {
 		return nil, ErrInvalidLanguageDirectory
 	}
 
 	language.RunScript = path.Join(languagePath, "run")
-	if !checkFileExists(language.RunScript) {
+	info, err = cptool.fs.Stat(language.RunScript)
+	if err != nil {
+		return nil, err
+	}
+	if info.IsDir() {
 		return nil, ErrInvalidLanguageDirectory
 	}
 
 	DebugScript := path.Join(languagePath, "debugcompile")
-	if checkFileExists(DebugScript) {
+	if info, err = cptool.fs.Stat(DebugScript); err == nil && !info.IsDir() {
 		language.Debuggable = true
 		language.DebugScript = DebugScript
 	}
@@ -103,48 +97,49 @@ func GetLanguageFromDirectory(languagePath string) (*Language, error) {
 	return language, nil
 }
 
-// GetAllLanguages returns all known language as array of Language
-func GetAllLanguages() ([]Language, map[string]Language) {
-	langPaths := getLanguagesPaths()
-	langMap := make(map[string]Language)
+func (cptool *CPTool) loadAllLanguages() {
+	langPaths := cptool.getLanguagesPaths()
 	for _, path := range langPaths {
-		if !checkDirExists(path) {
+		info, err := cptool.fs.Stat(path)
+		if err != nil || !info.IsDir() {
 			continue
 		}
 
-		filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
+		afero.Walk(cptool.fs, path, func(path string, info os.FileInfo, err error) error {
 			if info.IsDir() {
-				if lang, err := GetLanguageFromDirectory(path); err == nil {
-					if _, ok := langMap[lang.Name]; ok {
+				if lang, err := cptool.getLanguageFromDirectory(path); err == nil {
+					if _, ok := cptool.languages[lang.Name]; ok {
 						return nil
 					}
-					langMap[lang.Name] = *lang
+					cptool.languages[lang.Name] = *lang
 				}
 			}
 			return nil
 		})
 	}
+}
+
+// GetAllLanguages returns all known language as array of Language
+func (cptool *CPTool) GetAllLanguages() ([]Language, map[string]Language) {
 	languages := make([]Language, 0)
-	for _, value := range langMap {
+	for _, value := range cptool.languages {
 		languages = append(languages, value)
 	}
-	return languages, langMap
+	return languages, cptool.languages
 }
 
 // GetLanguageByName returns language that has specific name
-func GetLanguageByName(name string) (*Language, error) {
-	_, langMap := GetAllLanguages()
-	if lang, ok := langMap[name]; ok {
+func (cptool *CPTool) GetLanguageByName(name string) (*Language, error) {
+	if lang, ok := cptool.languages[name]; ok {
 		return &lang, nil
 	}
 	return nil, ErrNoSuchLanguage
 }
 
 // GetLanguageByExtension returns language that has specific extension
-func GetLanguageByExtension(extension string) []Language {
-	languages, _ := GetAllLanguages()
+func (cptool *CPTool) GetLanguageByExtension(extension string) []Language {
 	results := make([]Language, 0)
-	for _, lang := range languages {
+	for _, lang := range cptool.languages {
 		if lang.Extension == extension {
 			results = append(results, lang)
 		}
@@ -153,17 +148,17 @@ func GetLanguageByExtension(extension string) []Language {
 }
 
 // GetDefaultLanguage returns default language
-func GetDefaultLanguage() (*Language, error) {
-	languages, _ := GetAllLanguages()
+func (cptool *CPTool) GetDefaultLanguage() (Language, error) {
+	languages, _ := cptool.GetAllLanguages()
 	if len(languages) == 0 {
-		return nil, ErrNoSuchLanguage
+		return Language{}, ErrNoSuchLanguage
 	}
-	return &languages[0], nil
+	return languages[0], nil
 }
 
 // GetDefaultLanguageForExtension returns default language with specific extension
-func GetDefaultLanguageForExtension(extension string) (*Language, error) {
-	languages, _ := GetAllLanguages()
+func (cptool *CPTool) GetDefaultLanguageForExtension(extension string) (*Language, error) {
+	languages, _ := cptool.GetAllLanguages()
 	for _, lang := range languages {
 		if lang.Extension == extension {
 			return &lang, nil

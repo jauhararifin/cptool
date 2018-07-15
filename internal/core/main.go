@@ -22,6 +22,8 @@ type CPTool struct {
 	MinorVersion int
 	PatchVersion int
 
+	languages map[string]Language
+
 	fs               afero.Fs
 	workingDirectory string
 	homeDirectory    string
@@ -43,6 +45,8 @@ func NewDefault() (*CPTool, error) {
 		MajorVersion: MajorVersion,
 		MinorVersion: MinorVersion,
 		PatchVersion: PatchVersion,
+
+		languages: make(map[string]Language),
 
 		fs:               afero.NewOsFs(),
 		workingDirectory: cwd,
