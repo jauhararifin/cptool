@@ -58,10 +58,7 @@ func (cptool *CPTool) getLanguageFromDirectory(languagePath string) (*Language, 
 	configPath := path.Join(languagePath, "lang.conf")
 	info, err = cptool.fs.Stat(configPath)
 	if err == nil && !info.IsDir() {
-		configFile, err := cptool.fs.Open(configPath)
-		if err != nil {
-			return nil, err
-		}
+		configFile, _ := cptool.fs.Open(configPath)
 		languageConf := languageConfFile{}
 		if _, err = toml.DecodeReader(configFile, &languageConf); err != nil {
 			return nil, ErrInvalidLanguageConfigurationFile

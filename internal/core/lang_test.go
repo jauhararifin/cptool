@@ -118,6 +118,12 @@ func TestGetLanguageFromDirectoryWithoutRunScript(t *testing.T) {
 	if err == nil {
 		t.Error("should return error when run script is missing")
 	}
+
+	cptool.fs.MkdirAll("/langs/some_language_name/run", os.ModePerm)
+	_, err = cptool.getLanguageFromDirectory("/langs/some_language_name")
+	if err == nil {
+		t.Error("should return error when run script file is a directory")
+	}
 }
 
 func TestGetLanguageFromDirectoryWithoutCompileScript(t *testing.T) {
@@ -131,5 +137,38 @@ func TestGetLanguageFromDirectoryWithoutCompileScript(t *testing.T) {
 	_, err = cptool.getLanguageFromDirectory("/langs/some_language_name")
 	if err == nil {
 		t.Error("should return error when compile script is missing")
+	}
+
+	cptool.fs.MkdirAll("/langs/some_language_name/compile", os.ModePerm)
+	_, err = cptool.getLanguageFromDirectory("/langs/some_language_name")
+	if err == nil {
+		t.Error("should return error when compile script file is a directory")
+	}
+}
+
+func TestGetLanguageFromDirectoryWithInvalidConfFile(t *testing.T) {
+	cptool := newTest()
+
+	cptool.fs.MkdirAll("/langs/some_language_name", os.ModePerm)
+	file, err := cptool.fs.Create("/langs/some_language_name/lang.conf")
+	file.WriteString("abcdefg")
+	cptool.fs.Create("/langs/some_language_name/run")
+	cptool.fs.Create("/langs/some_language_name/compile")
+
+	_, err = cptool.getLanguageFromDirectory("/langs/some_language_name")
+	if err == nil {
+		t.Error("should return error when configuration file is not in toml format")
+	}
+}
+
+func TestGetLanguageFromDirectoryWithInvalidDirectory(t *testing.T) {
+	cptool := newTest()
+
+	cptool.fs.MkdirAll("/langs", os.ModePerm)
+	cptool.fs.Create("/langs/some_language_name")
+
+	_, err := cptool.getLanguageFromDirectory("/langs/some_language_name")
+	if err == nil {
+		t.Error("should return invalid directory error")
 	}
 }
