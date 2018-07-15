@@ -341,3 +341,48 @@ func TestLoadAllLanguagesWithMultipleName(t *testing.T) {
 		t.Error("language lang_c of cptool should be", languageC, ", but found", lang)
 	}
 }
+
+func TestGetAllLanguages(t *testing.T) {
+	cptool := newTest()
+	cptool.languages["lang_a"] = Language{
+		Name:          "lang_a",
+		Extension:     "a",
+		VerboseName:   "Language A",
+		CompileScript: "/etc/cptool/langs/lang_a/compile",
+		RunScript:     "/etc/cptool/langs/lang_a/run",
+		DebugScript:   "",
+		Debuggable:    false,
+	}
+	cptool.languages["lang_b"] = Language{
+		Name:          "lang_b",
+		Extension:     "b",
+		VerboseName:   "Language B",
+		CompileScript: "/etc/cptool/langs/lang_b/compile",
+		RunScript:     "/etc/cptool/langs/lang_b/run",
+		DebugScript:   "",
+		Debuggable:    false,
+	}
+	cptool.languages["lang_c"] = Language{
+		Name:          "lang_c",
+		Extension:     "c",
+		VerboseName:   "Language C",
+		CompileScript: path.Join(cptool.workingDirectory, ".cptool/langs/lang_c/compile"),
+		RunScript:     path.Join(cptool.workingDirectory, ".cptool/langs/lang_c/run"),
+		DebugScript:   "",
+		Debuggable:    false,
+	}
+
+	langList, _ := cptool.GetAllLanguages()
+	if len(langList) != 3 {
+		t.Error("language list should contains 3 elements")
+	}
+	matchA, matchB, matchC := false, false, false
+	for _, lang := range langList {
+		matchA = matchA || lang == cptool.languages["lang_a"]
+		matchB = matchB || lang == cptool.languages["lang_b"]
+		matchC = matchC || lang == cptool.languages["lang_c"]
+	}
+	if !matchA || !matchB || !matchC {
+		t.Error("language list should contain exactly the value of language map")
+	}
+}
