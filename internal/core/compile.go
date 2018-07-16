@@ -31,7 +31,8 @@ func (cptool *CPTool) getCompiledTarget(language Language, solution Solution, de
 }
 
 // Compile will compile solution if not yet compiled
-func (cptool *CPTool) Compile(language Language, solution Solution, debug bool) error {
+func (cptool *CPTool) Compile(solution Solution, debug bool) error {
+	language := solution.Language
 	if debug && !language.Debuggable {
 		logger.PrintError("language is not debuggable")
 		return ErrLanguageNotDebuggable
@@ -76,5 +77,5 @@ func (cptool *CPTool) CompileByName(languageName string, solutionName string, de
 		return err
 	}
 
-	return cptool.Compile(language, solution, debug)
+	return cptool.Compile(solution, debug)
 }
