@@ -26,7 +26,7 @@ func TestRun(t *testing.T) {
 		Path:        "/sol.lang",
 		LastUpdated: time.Now(),
 	}
-	err := cptool.Run(compileTestLanguage, solution)
+	err := cptool.Run(compileTestLanguage, solution, nil, nil, nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -55,7 +55,7 @@ func TestRunWithErrorCompilation(t *testing.T) {
 		Path:        "/sol.lang",
 		LastUpdated: time.Now(),
 	}
-	err := cptool.Run(compileTestLanguage, solution)
+	err := cptool.Run(compileTestLanguage, solution, nil, nil, nil)
 	if err == nil {
 		t.Error("Run should return an error")
 	}
@@ -82,7 +82,7 @@ func TestRunWithError(t *testing.T) {
 		Path:        "/sol.lang",
 		LastUpdated: time.Now(),
 	}
-	err := cptool.Run(compileTestLanguage, solution)
+	err := cptool.Run(compileTestLanguage, solution, nil, nil, nil)
 	if err == nil {
 		t.Error("Run should return an error")
 	}
@@ -104,7 +104,7 @@ func TestRunByName(t *testing.T) {
 
 	cptool.languages[compileTestLanguage.Name] = compileTestLanguage
 	cptool.fs.Create(path.Join(cptool.workingDirectory, "solution.lang"))
-	err := cptool.RunByName(compileTestLanguage.Name, "solution")
+	err := cptool.RunByName(compileTestLanguage.Name, "solution", nil, nil, nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -125,7 +125,7 @@ func TestRunByNameWithMissingSolution(t *testing.T) {
 	}
 
 	cptool.languages[compileTestLanguage.Name] = compileTestLanguage
-	err := cptool.RunByName(compileTestLanguage.Name, "solution")
+	err := cptool.RunByName(compileTestLanguage.Name, "solution", nil, nil, nil)
 	if err == nil {
 		t.Error("RunByName should return an error")
 	}
@@ -149,7 +149,7 @@ func TestRunByNameWithMissingLanguage(t *testing.T) {
 	}
 
 	cptool.fs.Create(path.Join(cptool.workingDirectory, "solution.lang"))
-	err := cptool.RunByName(compileTestLanguage.Name, "solution")
+	err := cptool.RunByName(compileTestLanguage.Name, "solution", nil, nil, nil)
 	if err == nil {
 		t.Error("RunByName should return an error")
 	}
