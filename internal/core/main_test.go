@@ -20,3 +20,8 @@ func newTest() *CPTool {
 		homeDirectory:    "/home/test/",
 	}
 }
+
+func getCptoolMemExec(cptool *CPTool) *executioner.MemExec {
+	memExec, _ := cptool.exec.(*executioner.MemExec)
+	return memExec
+}

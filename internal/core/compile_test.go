@@ -30,11 +30,6 @@ var compileTestLanguageDebuggable = Language{
 	Debuggable:    true,
 }
 
-func getCptoolMemExec(cptool *CPTool) *executioner.MemExec {
-	memExec, _ := cptool.exec.(*executioner.MemExec)
-	return memExec
-}
-
 func TestCompile(t *testing.T) {
 	cptool := newTest()
 	cptool.languages["some_lang"] = compileTestLanguage
