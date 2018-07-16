@@ -1,16 +1,19 @@
 package core
 
 import (
+	"errors"
 	"os"
-	"os/exec"
 	"path"
 
 	"github.com/jauhararifin/cptool/internal/logger"
 )
 
+// ErrLanguageNotDebuggable indicates that the language is not debuggable
+var ErrLanguageNotDebuggable = errors.New("Language is not debuggable")
+
 // GetCompilationRootDir returns root directory for compilation
 func (cptool *CPTool) getCompilationRootDir() string {
-	return ".cptool/solution"
+	return path.Join(cptool.workingDirectory, ".cptool/solutions")
 }
 
 // GetCompiledDirectory returns directory path where compiled program exists
@@ -29,10 +32,13 @@ func (cptool *CPTool) getCompiledTarget(language Language, solution Solution, de
 
 // Compile will compile solution if not yet compiled
 func (cptool *CPTool) Compile(language Language, solutionName string, debug bool) error {
+	if debug && !language.Debuggable {
+		logger.PrintError("language is not debuggable")
+		return ErrLanguageNotDebuggable
+	}
 	solution, err := cptool.GetSolution(solutionName, language)
 	if err != nil {
 		return err
-
 	}
 	logger.PrintInfo("compiling solution ", solution.Name)
 	targetDir := cptool.getCompiledDirectory(language, solution, debug)
@@ -42,13 +48,13 @@ func (cptool *CPTool) Compile(language Language, solutionName string, debug bool
 	info, err := cptool.fs.Stat(targetPath)
 	if err == nil {
 		compiledTime := info.ModTime()
-		if compiledTime.Before(solution.LastUpdated) {
+		if compiledTime.After(solution.LastUpdated) {
 			logger.PrintWarning("skipping compilation, solution already compiled")
 			return nil
 		}
 	}
 
-	cmd := exec.Command(language.CompileScript, solution.Path, targetPath)
+	cmd := cptool.exec.Command(language.CompileScript, solution.Path, targetPath)
 	err = cmd.Run()
 	if err != nil {
 		logger.PrintError("compilation failed ", err)
