@@ -31,19 +31,12 @@ func (cptool *CPTool) getCompiledTarget(language Language, solution Solution, de
 }
 
 // Compile will compile solution if not yet compiled
-func (cptool *CPTool) Compile(languageName string, solutionName string, debug bool) error {
-	language, err := cptool.GetLanguageByName(languageName)
-	if err != nil {
-		return err
-	}
+func (cptool *CPTool) Compile(language Language, solution Solution, debug bool) error {
 	if debug && !language.Debuggable {
 		logger.PrintError("language is not debuggable")
 		return ErrLanguageNotDebuggable
 	}
-	solution, err := cptool.GetSolution(solutionName, language)
-	if err != nil {
-		return err
-	}
+
 	logger.PrintInfo("compiling solution ", solution.Name)
 	targetDir := cptool.getCompiledDirectory(language, solution, debug)
 	cptool.fs.MkdirAll(targetDir, os.ModePerm)
@@ -58,7 +51,11 @@ func (cptool *CPTool) Compile(languageName string, solutionName string, debug bo
 		}
 	}
 
-	cmd := cptool.exec.Command(language.CompileScript, solution.Path, targetPath)
+	commandPath := language.CompileScript
+	if debug {
+		commandPath = language.DebugScript
+	}
+	cmd := cptool.exec.Command(commandPath, solution.Path, targetPath)
 	err = cmd.Run()
 	if err != nil {
 		logger.PrintError("compilation failed ", err)
@@ -66,4 +63,18 @@ func (cptool *CPTool) Compile(languageName string, solutionName string, debug bo
 		logger.PrintSuccess("compilation success: ", targetPath)
 	}
 	return err
+}
+
+// CompileByName will compile solution if not yet compiled
+func (cptool *CPTool) CompileByName(languageName string, solutionName string, debug bool) error {
+	language, err := cptool.GetLanguageByName(languageName)
+	if err != nil {
+		return err
+	}
+	solution, err := cptool.GetSolution(solutionName, language)
+	if err != nil {
+		return err
+	}
+
+	return cptool.Compile(language, solution, debug)
 }

@@ -1,9 +1,8 @@
 package core
 
-// TODO: check whether the executed script is the right script
-
 import (
 	"errors"
+	"fmt"
 	"path"
 	"testing"
 	"time"
@@ -38,19 +37,21 @@ func getCptoolMemExec(cptool *CPTool) *executioner.MemExec {
 
 func TestCompile(t *testing.T) {
 	cptool := newTest()
-	executed := false
-	memexec := getCptoolMemExec(cptool)
-	memexec.RunCallback = func() error {
-		executed = true
-		return nil
-	}
 	cptool.languages["some_lang"] = compileTestLanguage
 	_, err := cptool.fs.Create(path.Join(cptool.workingDirectory, "a.lang"))
 	if err != nil {
 		t.Fail()
 	}
+	executed := false
+	memexec := getCptoolMemExec(cptool)
+	memexec.RunCallback = func(m *executioner.BaseCmd) error {
+		if m.GetPath() == compileTestLanguage.CompileScript {
+			executed = true
+		}
+		return nil
+	}
 
-	err = cptool.Compile("some_lang", "a", false)
+	err = cptool.CompileByName("some_lang", "a", false)
 	if err != nil {
 		t.Error("Compile should compile code successfully succesfully")
 	}
@@ -63,8 +64,11 @@ func TestCompileWithDebug(t *testing.T) {
 	cptool := newTest()
 	executed := false
 	memexec := getCptoolMemExec(cptool)
-	memexec.RunCallback = func() error {
-		executed = true
+	memexec.RunCallback = func(m *executioner.BaseCmd) error {
+		fmt.Println(m.GetPath(), compileTestLanguageDebuggable.DebugScript)
+		if m.GetPath() == compileTestLanguageDebuggable.DebugScript {
+			executed = true
+		}
 		return nil
 	}
 	cptool.languages["some_lang"] = compileTestLanguageDebuggable
@@ -73,7 +77,7 @@ func TestCompileWithDebug(t *testing.T) {
 		t.Fail()
 	}
 
-	err = cptool.Compile("some_lang", "a", true)
+	err = cptool.CompileByName("some_lang", "a", true)
 	if err != nil {
 		t.Error("Compile should compile code successfully succesfully")
 	}
@@ -85,8 +89,10 @@ func TestCompileWithError(t *testing.T) {
 	cptool := newTest()
 	executed := false
 	memexec := getCptoolMemExec(cptool)
-	memexec.RunCallback = func() error {
-		executed = true
+	memexec.RunCallback = func(m *executioner.BaseCmd) error {
+		if m.GetPath() == compileTestLanguage.CompileScript {
+			executed = true
+		}
 		return errors.New("just some error")
 	}
 	cptool.languages["some_lang"] = compileTestLanguage
@@ -95,7 +101,7 @@ func TestCompileWithError(t *testing.T) {
 		t.Fail()
 	}
 
-	err = cptool.Compile("some_lang", "a", false)
+	err = cptool.CompileByName("some_lang", "a", false)
 	if err == nil {
 		t.Error("Compile should return error")
 	}
@@ -108,7 +114,7 @@ func TestCompileWithDebugInNonDebuggableLanguage(t *testing.T) {
 	cptool := newTest()
 	executed := false
 	memexec := getCptoolMemExec(cptool)
-	memexec.RunCallback = func() error {
+	memexec.RunCallback = func(m *executioner.BaseCmd) error {
 		executed = true
 		return nil
 	}
@@ -118,7 +124,7 @@ func TestCompileWithDebugInNonDebuggableLanguage(t *testing.T) {
 		t.Fail()
 	}
 
-	err = cptool.Compile("some_lang", "a", true)
+	err = cptool.CompileByName("some_lang", "a", true)
 	if err == nil || err != ErrLanguageNotDebuggable {
 		t.Error("Compile should return ErrLanguageNotDebuggable")
 	}
@@ -135,7 +141,7 @@ func TestCompileWithMissingLanguage(t *testing.T) {
 		t.Fail()
 	}
 
-	err = cptool.Compile("some_lang_not_found", "b", false)
+	err = cptool.CompileByName("some_lang_not_found", "b", false)
 	if err == nil || err != ErrNoSuchLanguage {
 		t.Error("Compile should return ErrNoSuchLanguage")
 	}
@@ -149,7 +155,7 @@ func TestCompileWithMissingSolution(t *testing.T) {
 		t.Fail()
 	}
 
-	err = cptool.Compile("some_lang", "b", false)
+	err = cptool.CompileByName("some_lang", "b", false)
 	if err == nil || err != ErrNoSuchSolution {
 		t.Error("Compile should return ErrNoSuchSolution")
 	}
@@ -159,7 +165,7 @@ func TestCompileWithDueDate(t *testing.T) {
 	cptool := newTest()
 	executed := false
 	memexec := getCptoolMemExec(cptool)
-	memexec.RunCallback = func() error {
+	memexec.RunCallback = func(m *executioner.BaseCmd) error {
 		executed = true
 		return nil
 	}
@@ -176,7 +182,7 @@ func TestCompileWithDueDate(t *testing.T) {
 	targetTime := time.Now().Add(time.Minute)
 	cptool.fs.Chtimes(targetPath, targetTime, targetTime)
 
-	err = cptool.Compile("some_lang", "a", false)
+	err = cptool.CompileByName("some_lang", "a", false)
 	if err != nil {
 		t.Error("Compile should not return error")
 	}
