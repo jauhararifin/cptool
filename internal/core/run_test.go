@@ -26,7 +26,7 @@ func TestRun(t *testing.T) {
 		Path:        "/sol.lang",
 		LastUpdated: time.Now(),
 	}
-	err := cptool.Run(compileTestLanguage, solution, nil, nil, nil)
+	err := cptool.Run(solution, nil, nil, nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -55,7 +55,7 @@ func TestRunWithErrorCompilation(t *testing.T) {
 		Path:        "/sol.lang",
 		LastUpdated: time.Now(),
 	}
-	err := cptool.Run(compileTestLanguage, solution, nil, nil, nil)
+	err := cptool.Run(solution, nil, nil, nil)
 	if err == nil {
 		t.Error("Run should return an error")
 	}
@@ -82,7 +82,7 @@ func TestRunWithError(t *testing.T) {
 		Path:        "/sol.lang",
 		LastUpdated: time.Now(),
 	}
-	err := cptool.Run(compileTestLanguage, solution, nil, nil, nil)
+	err := cptool.Run(solution, nil, nil, nil)
 	if err == nil {
 		t.Error("Run should return an error")
 	}

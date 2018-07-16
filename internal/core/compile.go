@@ -17,13 +17,14 @@ func (cptool *CPTool) getCompilationRootDir() string {
 }
 
 // GetCompiledDirectory returns directory path where compiled program exists
-func (cptool *CPTool) getCompiledDirectory(language Language, solution Solution, debug bool) string {
+func (cptool *CPTool) getCompiledDirectory(solution Solution, debug bool) string {
+	language := solution.Language
 	return path.Join(cptool.getCompilationRootDir(), solution.Name, language.Name)
 }
 
 // GetCompiledTarget returns file path to compiled program
-func (cptool *CPTool) getCompiledTarget(language Language, solution Solution, debug bool) string {
-	dir := cptool.getCompiledDirectory(language, solution, debug)
+func (cptool *CPTool) getCompiledTarget(solution Solution, debug bool) string {
+	dir := cptool.getCompiledDirectory(solution, debug)
 	if debug {
 		return path.Join(dir, "program_debug")
 	}
@@ -39,10 +40,10 @@ func (cptool *CPTool) Compile(solution Solution, debug bool) error {
 	}
 
 	logger.PrintInfo("compiling solution ", solution.Name)
-	targetDir := cptool.getCompiledDirectory(language, solution, debug)
+	targetDir := cptool.getCompiledDirectory(solution, debug)
 	cptool.fs.MkdirAll(targetDir, os.ModePerm)
 
-	targetPath := cptool.getCompiledTarget(language, solution, debug)
+	targetPath := cptool.getCompiledTarget(solution, debug)
 	info, err := cptool.fs.Stat(targetPath)
 	if err == nil {
 		compiledTime := info.ModTime()

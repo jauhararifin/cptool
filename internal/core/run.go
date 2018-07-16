@@ -7,9 +7,10 @@ import (
 )
 
 // Run will run solution. This will compile the solution first if its not compiled yet
-func (cptool *CPTool) Run(language Language, solution Solution, stdin io.Reader, stdout io.Writer, stderr io.Writer) error {
-	targetPath := cptool.getCompiledTarget(language, solution, false)
-	err := cptool.Compile(language, solution, false)
+func (cptool *CPTool) Run(solution Solution, stdin io.Reader, stdout io.Writer, stderr io.Writer) error {
+	language := solution.Language
+	targetPath := cptool.getCompiledTarget(solution, false)
+	err := cptool.Compile(solution, false)
 	if err != nil {
 		return err
 	}
@@ -38,5 +39,5 @@ func (cptool *CPTool) RunByName(languageName string, solutionName string, stdin 
 		return err
 	}
 
-	return cptool.Run(language, solution, stdin, stdout, stderr)
+	return cptool.Run(solution, stdin, stdout, stderr)
 }
