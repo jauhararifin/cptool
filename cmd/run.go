@@ -25,9 +25,26 @@ func initRunCommand() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			solutionName, language := parseSolution(args)
 
-			startTime := time.Now()
-			ctx, cancel := context.WithTimeout(context.Background(), timeout)
+			isTerminal := true
+			stat, _ := os.Stdin.Stat()
+			if (stat.Mode() & os.ModeCharDevice) == 0 {
+				isTerminal = false
+			}
+
+			if isTerminal && timeout != 10*time.Second {
+				logger.PrintWarning("Timeout flag only works on piped stdin")
+			}
+
+			var ctx context.Context
+			var cancel context.CancelFunc
+			if isTerminal {
+				ctx, cancel = context.WithCancel(context.Background())
+			} else {
+				ctx, cancel = context.WithTimeout(context.Background(), timeout)
+			}
 			defer cancel()
+
+			startTime := time.Now()
 			cptool.RunByName(ctx, language.Name, solutionName, os.Stdin, os.Stdout, os.Stderr)
 			if ctx.Err() != nil {
 				logger.PrintWarning("program stopped due to timeout")

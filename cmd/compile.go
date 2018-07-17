@@ -18,15 +18,14 @@ func parseSolution(args []string) (string, core.Language) {
 			os.Exit(1)
 		}
 		return solutionName, language
-	} else {
-		solutionName := args[0]
-		language, err := cptool.GetDefaultLanguage()
-		if err != nil {
-			logger.PrintError("cannot determine language")
-			os.Exit(1)
-		}
-		return solutionName, language
 	}
+	solutionName := args[0]
+	language, err := cptool.GetDefaultLanguage()
+	if err != nil {
+		logger.PrintError("cannot determine language")
+		os.Exit(1)
+	}
+	return solutionName, language
 }
 
 func initCompileCommand() *cobra.Command {
