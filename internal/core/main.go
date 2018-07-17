@@ -58,3 +58,9 @@ func NewDefault() (*CPTool, error) {
 		homeDirectory:    user.HomeDir,
 	}, nil
 }
+
+// Bootstrap will bootstrap cptool
+func (cptool *CPTool) Bootstrap() error {
+	cptool.loadAllLanguages()
+	return nil
+}
