@@ -8,6 +8,26 @@ import (
 	"github.com/spf13/cobra"
 )
 
+func parseSolution(args []string) (string, core.Language) {
+	if len(args) > 1 {
+		solutionName := args[1]
+		language, err := cptool.GetLanguageByName(args[0])
+		if err != nil {
+			logger.PrintError("cannot determine language")
+			os.Exit(1)
+		}
+		return solutionName, language
+	} else {
+		solutionName := args[0]
+		language, err := cptool.GetDefaultLanguage()
+		if err != nil {
+			logger.PrintError("cannot determine language")
+			os.Exit(1)
+		}
+		return solutionName, language
+	}
+}
+
 func initCompileCommand() *cobra.Command {
 	var debug bool
 
@@ -17,24 +37,7 @@ func initCompileCommand() *cobra.Command {
 		Version: cptool.GetVersion(),
 		Args:    cobra.RangeArgs(1, 2),
 		Run: func(cmd *cobra.Command, args []string) {
-			var solutionName string
-			var language core.Language
-			var err error
-			if len(args) > 1 {
-				solutionName = args[1]
-				language, err = cptool.GetLanguageByName(args[0])
-				if err != nil {
-					logger.PrintError("cannot determine language")
-					os.Exit(1)
-				}
-			} else {
-				solutionName = args[0]
-				language, err = cptool.GetDefaultLanguage()
-				if err != nil {
-					logger.PrintError("cannot determine language")
-					os.Exit(1)
-				}
-			}
+			solutionName, language := parseSolution(args)
 			err = cptool.CompileByName(language.Name, solutionName, debug)
 			if err != nil {
 				os.Exit(1)
