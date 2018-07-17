@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"time"
@@ -24,16 +25,11 @@ func initRunCommand() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			solutionName, language := parseSolution(args)
 
-			stopper := make(chan interface{})
 			startTime := time.Now()
-			go func() {
-				cptool.RunByName(language.Name, solutionName, os.Stdin, os.Stdout, os.Stderr)
-				close(stopper)
-			}()
-
-			select {
-			case <-stopper:
-			case <-time.After(timeout):
+			ctx, cancel := context.WithTimeout(context.Background(), timeout)
+			defer cancel()
+			cptool.RunByName(ctx, language.Name, solutionName, os.Stdin, os.Stdout, os.Stderr)
+			if ctx.Err() != nil {
 				logger.PrintWarning("program stopped due to timeout")
 			}
 			duration := time.Since(startTime)
