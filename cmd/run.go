@@ -15,11 +15,11 @@ func initRunCommand() *cobra.Command {
 	var hideTime bool
 
 	cmd := &cobra.Command{
-		Use:   "run [LANGUAGE] [SOLUTION]",
+		Use:   "run [LANGUAGE] SOLUTION",
 		Short: "Run competitive programming solution",
 		Long: "Run competitive programming solution. The program will compiled first if not yet compiled. The program\n" +
 			"will be killed if still running after some period of time, you can change this behaviour using --timeout\n" +
-			"option",
+			"option. This option only works if the program is running using stdin from file and not from terminal.",
 		Args:    cobra.RangeArgs(1, 2),
 		Version: cptool.GetVersion(),
 		Run: func(cmd *cobra.Command, args []string) {

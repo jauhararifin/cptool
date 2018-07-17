@@ -35,6 +35,12 @@
   version = "v1.0.1"
 
 [[projects]]
+  name = "github.com/udhos/equalfile"
+  packages = ["."]
+  revision = "1fbb66f8eea48ae23e255307eb54f4258ec215cb"
+  version = "v0.1"
+
+[[projects]]
   name = "golang.org/x/text"
   packages = [
     "internal/gen",
@@ -50,6 +56,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "cd2fa088596d118132dabe9c38a0fff03e7ec5f2a478b8a1d78ea7cf0b8c0621"
+  inputs-digest = "a3d10fc7a0adcfe1f7c3e663d111eb3be523bd61353ec1d3be2a016437c7cfd7"
   solver-name = "gps-cdcl"
   solver-version = 1

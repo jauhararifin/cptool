@@ -32,7 +32,7 @@ func initCompileCommand() *cobra.Command {
 	var debug bool
 
 	cmd := &cobra.Command{
-		Use:     "compile [LANGUAGE] [SOLUTION]",
+		Use:     "compile [LANGUAGE] SOLUTION",
 		Short:   "Compile competitive programming solution",
 		Version: cptool.GetVersion(),
 		Args:    cobra.RangeArgs(1, 2),
