@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	"errors"
 	"os"
 	"path"
@@ -32,7 +33,7 @@ func (cptool *CPTool) getCompiledTarget(solution Solution, debug bool) string {
 }
 
 // Compile will compile solution if not yet compiled
-func (cptool *CPTool) Compile(solution Solution, debug bool) error {
+func (cptool *CPTool) Compile(ctx context.Context, solution Solution, debug bool) error {
 	language := solution.Language
 	if debug && !language.Debuggable {
 		logger.PrintError("language is not debuggable")
@@ -57,7 +58,7 @@ func (cptool *CPTool) Compile(solution Solution, debug bool) error {
 	if debug {
 		commandPath = language.DebugScript
 	}
-	cmd := cptool.exec.Command(commandPath, solution.Path, targetPath)
+	cmd := cptool.exec.CommandContext(ctx, commandPath, solution.Path, targetPath)
 	err = cmd.Run()
 	if err != nil {
 		logger.PrintError("compilation failed: ", err)
@@ -68,7 +69,7 @@ func (cptool *CPTool) Compile(solution Solution, debug bool) error {
 }
 
 // CompileByName will compile solution if not yet compiled
-func (cptool *CPTool) CompileByName(languageName string, solutionName string, debug bool) error {
+func (cptool *CPTool) CompileByName(ctx context.Context, languageName string, solutionName string, debug bool) error {
 	language, err := cptool.GetLanguageByName(languageName)
 	if err != nil {
 		logger.PrintError("compilation failed: ", err)
@@ -80,5 +81,5 @@ func (cptool *CPTool) CompileByName(languageName string, solutionName string, de
 		return err
 	}
 
-	return cptool.Compile(solution, debug)
+	return cptool.Compile(ctx, solution, debug)
 }

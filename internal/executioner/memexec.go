@@ -1,6 +1,7 @@
 package executioner
 
 import (
+	"context"
 	"io"
 	"os/exec"
 )
@@ -31,6 +32,12 @@ func NewMemExec() Exec {
 // Command returns the Cmd struct to execute the named program with the given arguments
 func (m *MemExec) Command(name string, arg ...string) Cmd {
 	oscmd := exec.Command(name, arg...)
+	basecmd := &BaseCmd{oscmd}
+	return &MemCmd{MemExec: *m, BaseCmd: basecmd}
+}
+
+func (m *MemExec) CommandContext(ctx context.Context, name string, arg ...string) Cmd {
+	oscmd := exec.CommandContext(ctx, name, arg...)
 	basecmd := &BaseCmd{oscmd}
 	return &MemCmd{MemExec: *m, BaseCmd: basecmd}
 }

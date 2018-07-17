@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"path"
@@ -46,7 +47,7 @@ func TestCompile(t *testing.T) {
 		return nil
 	}
 
-	err = cptool.CompileByName("some_lang", "a", false)
+	err = cptool.CompileByName(context.Background(), "some_lang", "a", false)
 	if err != nil {
 		t.Error("Compile should compile code successfully succesfully")
 	}
@@ -72,7 +73,7 @@ func TestCompileWithDebug(t *testing.T) {
 		t.Fail()
 	}
 
-	err = cptool.CompileByName("some_lang", "a", true)
+	err = cptool.CompileByName(context.Background(), "some_lang", "a", true)
 	if err != nil {
 		t.Error("Compile should compile code successfully succesfully")
 	}
@@ -96,7 +97,7 @@ func TestCompileWithError(t *testing.T) {
 		t.Fail()
 	}
 
-	err = cptool.CompileByName("some_lang", "a", false)
+	err = cptool.CompileByName(context.Background(), "some_lang", "a", false)
 	if err == nil {
 		t.Error("Compile should return error")
 	}
@@ -119,7 +120,7 @@ func TestCompileWithDebugInNonDebuggableLanguage(t *testing.T) {
 		t.Fail()
 	}
 
-	err = cptool.CompileByName("some_lang", "a", true)
+	err = cptool.CompileByName(context.Background(), "some_lang", "a", true)
 	if err == nil || err != ErrLanguageNotDebuggable {
 		t.Error("Compile should return ErrLanguageNotDebuggable")
 	}
@@ -136,7 +137,7 @@ func TestCompileWithMissingLanguage(t *testing.T) {
 		t.Fail()
 	}
 
-	err = cptool.CompileByName("some_lang_not_found", "b", false)
+	err = cptool.CompileByName(context.Background(), "some_lang_not_found", "b", false)
 	if err == nil || err != ErrNoSuchLanguage {
 		t.Error("Compile should return ErrNoSuchLanguage")
 	}
@@ -150,7 +151,7 @@ func TestCompileWithMissingSolution(t *testing.T) {
 		t.Fail()
 	}
 
-	err = cptool.CompileByName("some_lang", "b", false)
+	err = cptool.CompileByName(context.Background(), "some_lang", "b", false)
 	if err == nil || err != ErrNoSuchSolution {
 		t.Error("Compile should return ErrNoSuchSolution")
 	}
@@ -177,7 +178,7 @@ func TestCompileWithDueDate(t *testing.T) {
 	targetTime := time.Now().Add(time.Minute)
 	cptool.fs.Chtimes(targetPath, targetTime, targetTime)
 
-	err = cptool.CompileByName("some_lang", "a", false)
+	err = cptool.CompileByName(context.Background(), "some_lang", "a", false)
 	if err != nil {
 		t.Error("Compile should not return error")
 	}

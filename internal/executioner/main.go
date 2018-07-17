@@ -1,6 +1,7 @@
 package executioner
 
 import (
+	"context"
 	"io"
 	"os"
 	"syscall"
@@ -45,4 +46,5 @@ type Cmd interface {
 // Exec runs external commands.
 type Exec interface {
 	Command(name string, arg ...string) Cmd
+	CommandContext(ctx context.Context, name string, arg ...string) Cmd
 }

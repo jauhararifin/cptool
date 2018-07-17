@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"os"
 
 	"github.com/jauhararifin/cptool/internal/core"
@@ -38,7 +39,7 @@ func initCompileCommand() *cobra.Command {
 		Args:    cobra.RangeArgs(1, 2),
 		Run: func(cmd *cobra.Command, args []string) {
 			solutionName, language := parseSolution(args)
-			err = cptool.CompileByName(language.Name, solutionName, debug)
+			err = cptool.CompileByName(context.Background(), language.Name, solutionName, debug)
 			if err != nil {
 				os.Exit(1)
 			}

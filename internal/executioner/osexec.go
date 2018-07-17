@@ -1,6 +1,9 @@
 package executioner
 
-import osexec "os/exec"
+import (
+	"context"
+	osexec "os/exec"
+)
 
 // OsExec implements exec from os package
 type OsExec struct{}
@@ -18,6 +21,13 @@ func NewOSExec() Exec {
 // Command returns the Cmd struct to execute the named program with the given arguments
 func (*OsExec) Command(name string, arg ...string) Cmd {
 	oscmd := osexec.Command(name, arg...)
+	base := BaseCmd{oscmd}
+	return &OsCmd{base}
+}
+
+// CommandContext returns Cmd with context
+func (*OsExec) CommandContext(ctx context.Context, name string, arg ...string) Cmd {
+	oscmd := osexec.CommandContext(ctx, name, arg...)
 	base := BaseCmd{oscmd}
 	return &OsCmd{base}
 }
