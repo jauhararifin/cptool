@@ -39,7 +39,7 @@ func (cptool *CPTool) Compile(solution Solution, debug bool) error {
 		return ErrLanguageNotDebuggable
 	}
 
-	logger.PrintInfo("compiling solution ", solution.Name)
+	logger.PrintInfo("compiling solution: ", solution.Name)
 	targetDir := cptool.getCompiledDirectory(solution, debug)
 	cptool.fs.MkdirAll(targetDir, os.ModePerm)
 
@@ -60,7 +60,7 @@ func (cptool *CPTool) Compile(solution Solution, debug bool) error {
 	cmd := cptool.exec.Command(commandPath, solution.Path, targetPath)
 	err = cmd.Run()
 	if err != nil {
-		logger.PrintError("compilation failed ", err)
+		logger.PrintError("compilation failed: ", err)
 	} else {
 		logger.PrintSuccess("compilation success: ", targetPath)
 	}
@@ -71,10 +71,12 @@ func (cptool *CPTool) Compile(solution Solution, debug bool) error {
 func (cptool *CPTool) CompileByName(languageName string, solutionName string, debug bool) error {
 	language, err := cptool.GetLanguageByName(languageName)
 	if err != nil {
+		logger.PrintError("compilation failed: ", err)
 		return err
 	}
 	solution, err := cptool.GetSolution(solutionName, language)
 	if err != nil {
+		logger.PrintError("compilation failed: ", err)
 		return err
 	}
 
