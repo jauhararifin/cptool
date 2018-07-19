@@ -35,7 +35,7 @@ func (cptool *CPTool) Test(ctx context.Context, language Language, solution Solu
 			logger.PrintError("Cannot open input file ", testCase.InputPath)
 			return err
 		}
-		err = cptool.Run(ctx, solution, inputFile, outputFile, os.Stderr)
+		_, err = cptool.Run(ctx, solution, inputFile, outputFile, os.Stderr)
 		if err != nil {
 			logger.PrintError("Testcase ", testCase.Name, " skipped, due to runtime error")
 			return err

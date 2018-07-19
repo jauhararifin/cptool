@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"time"
 
@@ -44,14 +43,16 @@ func initRunCommand() *cobra.Command {
 			}
 			defer cancel()
 
-			startTime := time.Now()
-			cptool.RunByName(ctx, language.Name, solutionName, os.Stdin, os.Stdout, os.Stderr)
+			result, err := cptool.RunByName(ctx, language.Name, solutionName, os.Stdin, os.Stdout, os.Stderr)
+			if err != nil {
+				logger.PrintError(err)
+				os.Exit(1)
+			}
 			if ctx.Err() != nil {
 				logger.PrintWarning("program stopped due to timeout")
 			}
-			duration := time.Since(startTime)
 			if !hideTime {
-				fmt.Printf("Ellapsed time: %.2f seconds\n", duration.Seconds())
+				logger.PrintInfo("Ellapsed time: ", result.Duration.Seconds(), " seconds")
 			}
 		},
 	}
