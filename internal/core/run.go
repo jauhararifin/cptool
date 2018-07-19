@@ -11,7 +11,7 @@ import (
 func (cptool *CPTool) Run(ctx context.Context, solution Solution, stdin io.Reader, stdout io.Writer, stderr io.Writer) error {
 	language := solution.Language
 	targetPath := cptool.getCompiledTarget(solution, false)
-	err := cptool.Compile(ctx, solution, false)
+	_, err := cptool.Compile(ctx, solution, false)
 	if err != nil {
 		return err
 	}

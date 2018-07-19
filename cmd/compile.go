@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/jauhararifin/cptool/internal/core"
@@ -38,10 +39,17 @@ func initCompileCommand() *cobra.Command {
 		Args:    cobra.RangeArgs(1, 2),
 		Run: func(cmd *cobra.Command, args []string) {
 			solutionName, language := parseSolution(args)
-			err = cptool.CompileByName(context.Background(), language.Name, solutionName, debug)
+			logger.PrintInfo("Compiling solution: ", solutionName)
+			result, err := cptool.CompileByName(context.Background(), language.Name, solutionName, debug)
 			if err != nil {
+				logger.PrintError(err)
 				os.Exit(1)
 			}
+			if result.Skipped {
+				logger.PrintWarning("Compilation skipped because solution already compiled")
+			}
+			fmt.Printf("Compiled program : %s\n", result.TargetPath)
+			fmt.Printf("Done in %.2f seconds\n", result.Duration.Seconds())
 		},
 	}
 

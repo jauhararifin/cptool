@@ -47,12 +47,15 @@ func TestCompile(t *testing.T) {
 		return nil
 	}
 
-	err = cptool.CompileByName(context.Background(), "some_lang", "a", false)
+	result, err := cptool.CompileByName(context.Background(), "some_lang", "a", false)
 	if err != nil {
 		t.Error("Compile should compile code successfully succesfully")
 	}
 	if !executed {
 		t.Error("Compile should execute compilation script")
+	}
+	if result.Skipped {
+		t.Error("Compile should not skip the compilation")
 	}
 }
 
@@ -73,12 +76,15 @@ func TestCompileWithDebug(t *testing.T) {
 		t.Fail()
 	}
 
-	err = cptool.CompileByName(context.Background(), "some_lang", "a", true)
+	result, err := cptool.CompileByName(context.Background(), "some_lang", "a", true)
 	if err != nil {
 		t.Error("Compile should compile code successfully succesfully")
 	}
 	if !executed {
 		t.Error("Compile should execute compilation script")
+	}
+	if result.Skipped {
+		t.Error("Compile should not skip the compilation")
 	}
 }
 func TestCompileWithError(t *testing.T) {
@@ -97,12 +103,15 @@ func TestCompileWithError(t *testing.T) {
 		t.Fail()
 	}
 
-	err = cptool.CompileByName(context.Background(), "some_lang", "a", false)
+	result, err := cptool.CompileByName(context.Background(), "some_lang", "a", false)
 	if err == nil {
 		t.Error("Compile should return error")
 	}
 	if !executed {
 		t.Error("Compile should execute compilation script")
+	}
+	if result.Skipped {
+		t.Error("Compile should not skip the compilation")
 	}
 }
 
@@ -120,7 +129,7 @@ func TestCompileWithDebugInNonDebuggableLanguage(t *testing.T) {
 		t.Fail()
 	}
 
-	err = cptool.CompileByName(context.Background(), "some_lang", "a", true)
+	_, err = cptool.CompileByName(context.Background(), "some_lang", "a", true)
 	if err == nil || err != ErrLanguageNotDebuggable {
 		t.Error("Compile should return ErrLanguageNotDebuggable")
 	}
@@ -137,7 +146,7 @@ func TestCompileWithMissingLanguage(t *testing.T) {
 		t.Fail()
 	}
 
-	err = cptool.CompileByName(context.Background(), "some_lang_not_found", "b", false)
+	_, err = cptool.CompileByName(context.Background(), "some_lang_not_found", "b", false)
 	if err == nil || err != ErrNoSuchLanguage {
 		t.Error("Compile should return ErrNoSuchLanguage")
 	}
@@ -151,7 +160,7 @@ func TestCompileWithMissingSolution(t *testing.T) {
 		t.Fail()
 	}
 
-	err = cptool.CompileByName(context.Background(), "some_lang", "b", false)
+	_, err = cptool.CompileByName(context.Background(), "some_lang", "b", false)
 	if err == nil || err != ErrNoSuchSolution {
 		t.Error("Compile should return ErrNoSuchSolution")
 	}
@@ -178,11 +187,14 @@ func TestCompileWithDueDate(t *testing.T) {
 	targetTime := time.Now().Add(time.Minute)
 	cptool.fs.Chtimes(targetPath, targetTime, targetTime)
 
-	err = cptool.CompileByName(context.Background(), "some_lang", "a", false)
+	result, err := cptool.CompileByName(context.Background(), "some_lang", "a", false)
 	if err != nil {
 		t.Error("Compile should not return error")
 	}
 	if executed {
 		t.Error("Compile should not execute the script")
+	}
+	if !result.Skipped {
+		t.Error("Compile should skip the compilation")
 	}
 }

@@ -5,9 +5,15 @@ import (
 	"errors"
 	"os"
 	"path"
-
-	"github.com/jauhararifin/cptool/internal/logger"
+	"time"
 )
+
+// CompilationResult store compilation result
+type CompilationResult struct {
+	Skipped    bool
+	TargetPath string
+	Duration   time.Duration
+}
 
 // ErrLanguageNotDebuggable indicates that the language is not debuggable
 var ErrLanguageNotDebuggable = errors.New("Language is not debuggable")
@@ -33,14 +39,12 @@ func (cptool *CPTool) getCompiledTarget(solution Solution, debug bool) string {
 }
 
 // Compile will compile solution if not yet compiled
-func (cptool *CPTool) Compile(ctx context.Context, solution Solution, debug bool) error {
+func (cptool *CPTool) Compile(ctx context.Context, solution Solution, debug bool) (CompilationResult, error) {
 	language := solution.Language
 	if debug && !language.Debuggable {
-		logger.PrintError("language is not debuggable")
-		return ErrLanguageNotDebuggable
+		return CompilationResult{}, ErrLanguageNotDebuggable
 	}
 
-	logger.PrintInfo("compiling solution: ", solution.Name)
 	targetDir := cptool.getCompiledDirectory(solution, debug)
 	cptool.fs.MkdirAll(targetDir, os.ModePerm)
 
@@ -49,8 +53,10 @@ func (cptool *CPTool) Compile(ctx context.Context, solution Solution, debug bool
 	if err == nil {
 		compiledTime := info.ModTime()
 		if compiledTime.After(solution.LastUpdated) {
-			logger.PrintWarning("skipping compilation, solution already compiled")
-			return nil
+			return CompilationResult{
+				Skipped:    true,
+				TargetPath: targetPath,
+			}, nil
 		}
 	}
 
@@ -61,25 +67,29 @@ func (cptool *CPTool) Compile(ctx context.Context, solution Solution, debug bool
 	cmd := cptool.exec.CommandContext(ctx, commandPath, solution.Path, targetPath)
 	err = cmd.Run()
 	if err != nil {
-		logger.PrintError("compilation failed: ", err)
-	} else {
-		logger.PrintSuccess("compilation success: ", targetPath)
+		return CompilationResult{}, err
 	}
-	return err
+	return CompilationResult{
+		Skipped:    false,
+		TargetPath: targetPath,
+	}, nil
 }
 
 // CompileByName will compile solution if not yet compiled
-func (cptool *CPTool) CompileByName(ctx context.Context, languageName string, solutionName string, debug bool) error {
+func (cptool *CPTool) CompileByName(ctx context.Context, languageName string, solutionName string, debug bool) (CompilationResult, error) {
+	start := time.Now()
 	language, err := cptool.GetLanguageByName(languageName)
 	if err != nil {
-		logger.PrintError("compilation failed: ", err)
-		return err
+		return CompilationResult{}, err
 	}
 	solution, err := cptool.GetSolution(solutionName, language)
 	if err != nil {
-		logger.PrintError("compilation failed: ", err)
-		return err
+		return CompilationResult{}, err
 	}
-
-	return cptool.Compile(ctx, solution, debug)
+	result, err := cptool.Compile(ctx, solution, debug)
+	if err != nil {
+		return CompilationResult{}, err
+	}
+	result.Duration = time.Since(start)
+	return result, nil
 }
