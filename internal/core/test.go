@@ -26,6 +26,7 @@ func (cptool *CPTool) Test(ctx context.Context, language Language, solution Solu
 		}
 		outputFile, err := cptool.fs.Create(outputFilePath)
 		if err != nil {
+			logger.PrintError("Cannot open output file ", outputFilePath)
 			return err
 		}
 
@@ -34,17 +35,19 @@ func (cptool *CPTool) Test(ctx context.Context, language Language, solution Solu
 			logger.PrintError("Cannot open input file ", testCase.InputPath)
 			return err
 		}
-		if err != nil {
-			logger.PrintError("Cannot open output file ", outputFilePath)
-			return err
-		}
 		err = cptool.Run(ctx, solution, inputFile, outputFile, os.Stderr)
 		if err != nil {
 			logger.PrintError("Testcase ", testCase.Name, " skipped, due to runtime error")
 			return err
 		}
 
-		same, err := equalfile.CompareFile(outputFilePath, testCase.OutputPath)
+		expectedOutputFile, err := cptool.fs.Open(testCase.OutputPath)
+		if err != nil {
+			logger.PrintError("Cannot open expected output file ", testCase.OutputPath)
+			return err
+		}
+
+		same, err := equalfile.CompareReader(outputFile, expectedOutputFile)
 		if err != nil {
 			logger.PrintError("Cannot comparing output file with expected output: ", err)
 			return err
