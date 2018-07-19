@@ -1,0 +1,18 @@
+language: go
+
+go:
+  - 1.10
+
+git:
+  depth: 1
+
+notifications:
+  email: false
+
+before_install:                                                                 
+  - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh  
+  - dep ensure
+
+script:
+  - golangci-lint run
+  - go test -v -race ./...
