@@ -2,7 +2,6 @@ package core
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"path"
 
@@ -158,8 +157,6 @@ func (cptool *CPTool) GetDefaultLanguage() (Language, error) {
 						return defaultLanguage, nil
 					}
 				}
-			} else {
-				fmt.Print(err)
 			}
 		}
 	}

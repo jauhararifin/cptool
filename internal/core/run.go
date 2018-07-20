@@ -3,10 +3,7 @@ package core
 import (
 	"context"
 	"io"
-	"os"
 	"time"
-
-	"github.com/jauhararifin/cptool/internal/logger"
 )
 
 // ExecutionResult stores execution result
@@ -30,19 +27,11 @@ func (cptool *CPTool) Run(
 		return ExecutionResult{}, err
 	}
 
-	isTerminal := true
-	if stat, err := os.Stdin.Stat(); err == nil && (stat.Mode()&os.ModeCharDevice) == 0 {
-		isTerminal = false
-	}
-
 	cmd := cptool.exec.CommandContext(ctx, language.RunScript, targetPath)
 	cmd.SetStdin(stdin)
 	cmd.SetStdout(stdout)
 	cmd.SetStderr(stderr)
 
-	if isTerminal {
-		logger.PrintInfo("Program started")
-	}
 	start := time.Now()
 	err = cmd.Run()
 	duration := time.Since(start)

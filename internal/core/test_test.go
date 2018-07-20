@@ -21,7 +21,7 @@ func TestTest(t *testing.T) {
 		LastUpdated: time.Now(),
 	}
 
-	err := cptool.Test(context.Background(), compileTestLanguage, solution, "test")
+	_, err := cptool.Test(context.Background(), compileTestLanguage, solution, "test")
 	if err != nil {
 		t.Error(err)
 	}

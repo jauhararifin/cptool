@@ -2,75 +2,140 @@ package core
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path"
 	"path/filepath"
+	"time"
 
-	"github.com/jauhararifin/cptool/internal/logger"
 	"github.com/udhos/equalfile"
 )
+
+const (
+	// TestCaseSkipped indicates the testcase is skipped
+	TestCaseSkipped = iota
+
+	// TestCaseFailed indicates the testcase is failed
+	TestCaseFailed = iota
+
+	// TestCaseSuccess indicates the testcase is success
+	TestCaseSuccess = iota
+)
+
+// TestCaseResult stores the result of a test case
+type TestCaseResult struct {
+	Testcase TestCase
+	Duration time.Duration
+	Status   int
+	Err      error
+}
+
+// TestResult store test results
+type TestResult struct {
+	TestCaseResults         []TestCaseResult
+	Duration                time.Duration
+	UnsuccessfullTestsCount uint
+}
 
 func (cptool *CPTool) getOutputTarget(solution Solution, testCase TestCase) string {
 	return path.Join(cptool.workingDirectory, ".cptool/outputs", solution.Name, solution.Language.Name, testCase.Name)
 }
 
 // Test will run solution using some testcases.
-func (cptool *CPTool) Test(ctx context.Context, language Language, solution Solution, testPrefix string) error {
+func (cptool *CPTool) Test(
+	ctx context.Context,
+	language Language,
+	solution Solution,
+	testPrefix string,
+) (TestResult, error) {
 	testCases := cptool.getAllTestCaseWithPrefix(testPrefix)
+
+	results := TestResult{}
+	startTime := time.Now()
+
 	for _, testCase := range testCases {
-		logger.PrintInfo("Running testcase ", testCase.Name)
+		tcResult := TestCaseResult{Testcase: testCase}
+
 		outputFilePath := cptool.getOutputTarget(solution, testCase)
 		if err := cptool.fs.MkdirAll(filepath.Dir(outputFilePath), os.ModePerm); err != nil {
-			return err
+			tcResult.Status = TestCaseSkipped
+			tcResult.Err = err
+			results.TestCaseResults = append(results.TestCaseResults, tcResult)
+			results.UnsuccessfullTestsCount++
+			continue
 		}
 		outputFile, err := cptool.fs.Create(outputFilePath)
 		if err != nil {
-			logger.PrintError("Cannot open output file ", outputFilePath)
-			return err
+			tcResult.Status = TestCaseSkipped
+			tcResult.Err = err
+			results.TestCaseResults = append(results.TestCaseResults, tcResult)
+			results.UnsuccessfullTestsCount++
+			continue
 		}
 
 		inputFile, err := cptool.fs.Open(testCase.InputPath)
 		if err != nil {
-			logger.PrintError("Cannot open input file ", testCase.InputPath)
-			return err
+			tcResult.Status = TestCaseSkipped
+			tcResult.Err = err
+			results.TestCaseResults = append(results.TestCaseResults, tcResult)
+			results.UnsuccessfullTestsCount++
+			continue
 		}
+		startTime := time.Now()
 		_, err = cptool.Run(ctx, solution, inputFile, outputFile, os.Stderr)
+		duration := time.Since(startTime)
 		if err != nil {
-			logger.PrintError("Testcase ", testCase.Name, " skipped, due to runtime error")
-			return err
+			tcResult.Status = TestCaseSkipped
+			tcResult.Err = err
+			results.TestCaseResults = append(results.TestCaseResults, tcResult)
+			results.UnsuccessfullTestsCount++
+			continue
 		}
 
 		expectedOutputFile, err := cptool.fs.Open(testCase.OutputPath)
 		if err != nil {
-			logger.PrintError("Cannot open expected output file ", testCase.OutputPath)
-			return err
+			tcResult.Status = TestCaseSkipped
+			tcResult.Err = err
+			results.TestCaseResults = append(results.TestCaseResults, tcResult)
+			results.UnsuccessfullTestsCount++
+			continue
 		}
 
 		same, err := equalfile.CompareReader(outputFile, expectedOutputFile)
 		if err != nil {
-			logger.PrintError("Cannot comparing output file with expected output: ", err)
-			return err
+			tcResult.Status = TestCaseSkipped
+			tcResult.Err = err
+			results.TestCaseResults = append(results.TestCaseResults, tcResult)
+			results.UnsuccessfullTestsCount++
+			continue
 		}
+		tcResult.Duration = duration
 		if !same {
-			logger.PrintError("Program's output differ with expected output")
+			tcResult.Status = TestCaseFailed
+			results.TestCaseResults = append(results.TestCaseResults, tcResult)
+			results.UnsuccessfullTestsCount++
 		} else {
-			logger.PrintSuccess("Program's output match with expected output")
+			tcResult.Status = TestCaseSuccess
+			results.TestCaseResults = append(results.TestCaseResults, tcResult)
 		}
-		fmt.Println()
 	}
-	return nil
+	results.Duration = time.Since(startTime)
+	return results, nil
 }
 
 // TestByName will run solution using some testcases.
-func (cptool *CPTool) TestByName(ctx context.Context, languageName string, solutionName string, testPrefix string) error {
+func (cptool *CPTool) TestByName(
+	ctx context.Context,
+	languageName string,
+	solutionName string,
+	testPrefix string,
+) (TestResult, error) {
 	language, err := cptool.GetLanguageByName(languageName)
 	if err != nil {
-		return err
+		return TestResult{}, err
 	}
 	solution, err := cptool.GetSolution(solutionName, language)
 	if err != nil {
-		return err
+		return TestResult{}, err
 	}
 
 	return cptool.Test(ctx, language, solution, testPrefix)

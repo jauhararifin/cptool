@@ -49,14 +49,27 @@ func initTestCommand() *cobra.Command {
 
 			ctx, cancel := context.WithTimeout(context.Background(), timeout)
 			defer cancel()
-			startTime := time.Now()
-			cptool.TestByName(ctx, language.Name, solutionName, testcasePrefix)
+
+			result, err := cptool.TestByName(ctx, language.Name, solutionName, testcasePrefix)
+			if err != nil {
+				logger.PrintError(err)
+				os.Exit(1)
+			}
+
 			if ctx.Err() != nil {
 				logger.PrintWarning("Test stopped due to timeout")
 			}
-			duration := time.Since(startTime)
+			for _, testCase := range result.TestCaseResults {
+				if testCase.Status == core.TestCaseSuccess {
+					logger.PrintSuccess(testCase.Testcase.Name, " success in ", testCase.Duration.Seconds(), " seconds")
+				} else if testCase.Status == core.TestCaseSkipped {
+					logger.PrintWarning(testCase.Testcase.Name, " skipped")
+				} else {
+					logger.PrintError(testCase.Testcase.Name, " failed in ", testCase.Duration.Seconds(), " seconds")
+				}
+			}
 			if !hideTime {
-				fmt.Printf("Ellapsed time: %.2f seconds\n", duration.Seconds())
+				fmt.Printf("Ellapsed time: %.2f seconds\n", result.Duration.Seconds())
 			}
 		},
 	}

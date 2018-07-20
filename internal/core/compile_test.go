@@ -3,7 +3,6 @@ package core
 import (
 	"context"
 	"errors"
-	"fmt"
 	"path"
 	"testing"
 	"time"
@@ -64,7 +63,6 @@ func TestCompileWithDebug(t *testing.T) {
 	executed := false
 	memexec := getCptoolMemExec(cptool)
 	memexec.RunCallback = func(m *executioner.BaseCmd) error {
-		fmt.Println(m.GetPath(), compileTestLanguageDebuggable.DebugScript)
 		if m.GetPath() == compileTestLanguageDebuggable.DebugScript {
 			executed = true
 		}
