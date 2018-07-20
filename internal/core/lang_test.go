@@ -466,6 +466,47 @@ func TestGetDefaultLanguage(t *testing.T) {
 	}
 }
 
+func TestGetDefaultLanguageWithConfiguration(t *testing.T) {
+	cptool := newTest()
+	cptool.languages["lang_a"] = Language{
+		Name:          "lang_a",
+		Extension:     "a",
+		VerboseName:   "Language A",
+		CompileScript: "/etc/cptool/langs/lang_a/compile",
+		RunScript:     "/etc/cptool/langs/lang_a/run",
+		DebugScript:   "",
+		Debuggable:    false,
+	}
+	cptool.languages["lang_b"] = Language{
+		Name:          "lang_b",
+		Extension:     "b",
+		VerboseName:   "Language B",
+		CompileScript: "/etc/cptool/langs/lang_b/compile",
+		RunScript:     "/etc/cptool/langs/lang_b/run",
+		DebugScript:   "",
+		Debuggable:    false,
+	}
+	cptool.languages["lang_c"] = Language{
+		Name:          "lang_c",
+		Extension:     "c",
+		VerboseName:   "Language C",
+		CompileScript: path.Join(cptool.workingDirectory, ".cptool/langs/lang_c/compile"),
+		RunScript:     path.Join(cptool.workingDirectory, ".cptool/langs/lang_c/run"),
+		DebugScript:   "",
+		Debuggable:    false,
+	}
+	config, _ := cptool.fs.Create("/etc/cptool/config")
+	config.WriteString("default_language = \"lang_b\"\n")
+
+	defaultLang, err := cptool.GetDefaultLanguage()
+	if err != nil {
+		t.Error(err)
+	}
+	if defaultLang != cptool.languages["lang_b"] {
+		t.Error("GetDefaultLanguage should return language b")
+	}
+}
+
 func TestGetDefaultLanguageWithoutKnownLanguage(t *testing.T) {
 	cptool := newTest()
 	_, err := cptool.GetDefaultLanguage()

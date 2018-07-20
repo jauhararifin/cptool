@@ -2,6 +2,7 @@ package core
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path"
 
@@ -139,6 +140,30 @@ func (cptool *CPTool) GetLanguageByName(name string) (Language, error) {
 
 // GetDefaultLanguage returns default language
 func (cptool *CPTool) GetDefaultLanguage() (Language, error) {
+	configurationPaths := cptool.GetConfigurationPaths()
+	for _, confPath := range configurationPaths {
+		userConfigPath := path.Join(confPath, "config")
+		info, err := cptool.fs.Stat(userConfigPath)
+		if err != nil || info.IsDir() {
+			continue
+		}
+
+		if userConfigFile, err := cptool.fs.Open(userConfigPath); err == nil {
+			result := &struct {
+				DefaultLanguage string `toml:"default_language"`
+			}{}
+			if _, err = toml.DecodeReader(userConfigFile, &result); err == nil {
+				if len(result.DefaultLanguage) > 0 {
+					if defaultLanguage, err := cptool.GetLanguageByName(result.DefaultLanguage); err == nil {
+						return defaultLanguage, nil
+					}
+				}
+			} else {
+				fmt.Print(err)
+			}
+		}
+	}
+
 	languages, _ := cptool.GetAllLanguages()
 	if len(languages) == 0 {
 		return Language{}, ErrNoSuchLanguage
