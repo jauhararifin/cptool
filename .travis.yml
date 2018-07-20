@@ -13,6 +13,7 @@ notifications:
 before_install:                                                                 
   - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh  
   - dep ensure
+  - go get -u golang.org/x/lint/golint
 
 script:
   - golint $(go list ./...)
