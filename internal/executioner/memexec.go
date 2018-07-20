@@ -36,6 +36,7 @@ func (m *MemExec) Command(name string, arg ...string) Cmd {
 	return &MemCmd{MemExec: *m, BaseCmd: basecmd}
 }
 
+// CommandContext create command with context
 func (m *MemExec) CommandContext(ctx context.Context, name string, arg ...string) Cmd {
 	oscmd := exec.CommandContext(ctx, name, arg...)
 	basecmd := &BaseCmd{oscmd}

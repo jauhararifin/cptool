@@ -15,5 +15,5 @@ before_install:
   - dep ensure
 
 script:
-  - golangci-lint run
-  - go test -v -race ./...
+  - golint $(go list ./...)
+  - go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
