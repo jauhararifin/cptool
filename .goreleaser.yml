@@ -27,3 +27,8 @@ builds:
 
 archive:
   format: tar.gz
+  files:
+    - LICENSE
+    - README.md
+    - langs/*
+    - config

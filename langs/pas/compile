@@ -1,5 +1,8 @@
 #!/bin/bash
 
+SOURCE=$1
+DEST=$2
+
 fpc -viwn -O2 -Sg -XS -o"$DEST" "$SOURCE"
 exitcode=$?
 
