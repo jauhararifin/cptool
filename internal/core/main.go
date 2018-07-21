@@ -27,9 +27,10 @@ type CPTool struct {
 
 	exec executioner.Exec
 
-	fs               afero.Fs
-	workingDirectory string
-	homeDirectory    string
+	fs                  afero.Fs
+	workingDirectory    string
+	cptoolHomeDirectory string
+	homeDirectory       string
 }
 
 // NewDefault create new default cptool instance
@@ -53,9 +54,10 @@ func NewDefault() (*CPTool, error) {
 
 		exec: executioner.NewOSExec(),
 
-		fs:               afero.NewOsFs(),
-		workingDirectory: cwd,
-		homeDirectory:    user.HomeDir,
+		fs:                  afero.NewOsFs(),
+		workingDirectory:    cwd,
+		cptoolHomeDirectory: os.Getenv("CPTOOL_HOME"),
+		homeDirectory:       user.HomeDir,
 	}, nil
 }
 

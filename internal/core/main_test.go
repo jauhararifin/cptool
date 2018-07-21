@@ -19,9 +19,10 @@ func newTest() *CPTool {
 
 		exec: executioner.NewMemExec(),
 
-		fs:               afero.NewMemMapFs(),
-		workingDirectory: "/home/test/cptool",
-		homeDirectory:    "/home/test/",
+		fs:                  afero.NewMemMapFs(),
+		workingDirectory:    "/home/test/cptool",
+		cptoolHomeDirectory: "/home/test/.cptool",
+		homeDirectory:       "/home/test/",
 	}
 }
 
