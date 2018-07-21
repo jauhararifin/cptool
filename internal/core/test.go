@@ -40,6 +40,43 @@ func (cptool *CPTool) getOutputTarget(solution Solution, testCase TestCase) stri
 	return path.Join(cptool.workingDirectory, ".cptool/outputs", solution.Name, solution.Language.Name, testCase.Name)
 }
 
+func (cptool *CPTool) runSingleTest(ctx context.Context, solution Solution, testCase TestCase) (bool, time.Duration, error) {
+	outputFilePath := cptool.getOutputTarget(solution, testCase)
+	if err := cptool.fs.MkdirAll(filepath.Dir(outputFilePath), os.ModePerm); err != nil {
+		return false, 0, err
+	}
+	outputFile, err := cptool.fs.Create(outputFilePath)
+	defer outputFile.Close()
+	if err != nil {
+		return false, 0, err
+	}
+	inputFile, err := cptool.fs.Open(testCase.InputPath)
+	defer inputFile.Close()
+	if err != nil {
+		return false, 0, err
+	}
+	startTime := time.Now()
+	_, err = cptool.Run(ctx, solution, inputFile, outputFile, os.Stderr)
+	duration := time.Since(startTime)
+	if err != nil {
+		return false, 0, err
+	}
+	_, err = outputFile.Seek(0, 0)
+	if err != nil {
+		return false, 0, err
+	}
+	expectedOutputFile, err := cptool.fs.Open(testCase.OutputPath)
+	defer expectedOutputFile.Close()
+	if err != nil {
+		return false, 0, err
+	}
+	same, _ := equalfile.CompareReader(outputFile, expectedOutputFile)
+	if !same {
+		return false, duration, nil
+	}
+	return true, duration, nil
+}
+
 // Test will run solution using some testcases.
 func (cptool *CPTool) Test(
 	ctx context.Context,
@@ -48,74 +85,27 @@ func (cptool *CPTool) Test(
 	testPrefix string,
 ) (TestResult, error) {
 	testCases := cptool.getAllTestCaseWithPrefix(testPrefix)
-
 	results := TestResult{}
 	startTime := time.Now()
-
 	for _, testCase := range testCases {
-		tcResult := TestCaseResult{Testcase: testCase}
-
-		outputFilePath := cptool.getOutputTarget(solution, testCase)
-		if err := cptool.fs.MkdirAll(filepath.Dir(outputFilePath), os.ModePerm); err != nil {
-			tcResult.Status = TestCaseSkipped
-			tcResult.Err = err
-			results.TestCaseResults = append(results.TestCaseResults, tcResult)
-			results.UnsuccessfullTestsCount++
-			continue
-		}
-		outputFile, err := cptool.fs.Create(outputFilePath)
+		succes, duration, err := cptool.runSingleTest(ctx, solution, testCase)
 		if err != nil {
-			tcResult.Status = TestCaseSkipped
-			tcResult.Err = err
-			results.TestCaseResults = append(results.TestCaseResults, tcResult)
-			results.UnsuccessfullTestsCount++
-			continue
-		}
-
-		inputFile, err := cptool.fs.Open(testCase.InputPath)
-		if err != nil {
-			tcResult.Status = TestCaseSkipped
-			tcResult.Err = err
-			results.TestCaseResults = append(results.TestCaseResults, tcResult)
-			results.UnsuccessfullTestsCount++
-			continue
-		}
-		startTime := time.Now()
-		_, err = cptool.Run(ctx, solution, inputFile, outputFile, os.Stderr)
-		duration := time.Since(startTime)
-		if err != nil {
-			tcResult.Status = TestCaseSkipped
-			tcResult.Err = err
-			results.TestCaseResults = append(results.TestCaseResults, tcResult)
-			results.UnsuccessfullTestsCount++
-			continue
-		}
-
-		expectedOutputFile, err := cptool.fs.Open(testCase.OutputPath)
-		if err != nil {
-			tcResult.Status = TestCaseSkipped
-			tcResult.Err = err
-			results.TestCaseResults = append(results.TestCaseResults, tcResult)
-			results.UnsuccessfullTestsCount++
-			continue
-		}
-
-		same, err := equalfile.CompareReader(outputFile, expectedOutputFile)
-		if err != nil {
-			tcResult.Status = TestCaseSkipped
-			tcResult.Err = err
-			results.TestCaseResults = append(results.TestCaseResults, tcResult)
-			results.UnsuccessfullTestsCount++
-			continue
-		}
-		tcResult.Duration = duration
-		if !same {
-			tcResult.Status = TestCaseFailed
-			results.TestCaseResults = append(results.TestCaseResults, tcResult)
+			results.TestCaseResults = append(results.TestCaseResults, TestCaseResult{
+				Testcase: testCase,
+				Status:   TestCaseSkipped,
+				Err:      err,
+			})
 			results.UnsuccessfullTestsCount++
 		} else {
-			tcResult.Status = TestCaseSuccess
-			results.TestCaseResults = append(results.TestCaseResults, tcResult)
+			status := TestCaseFailed
+			if succes {
+				status = TestCaseSuccess
+			}
+			results.TestCaseResults = append(results.TestCaseResults, TestCaseResult{
+				Testcase: testCase,
+				Status:   status,
+				Duration: duration,
+			})
 		}
 	}
 	results.Duration = time.Since(startTime)
