@@ -17,3 +17,11 @@ before_install:
 script:
   - golint $(go list ./...)
   - go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+
+deploy:
+- provider: script
+  skip_cleanup: true
+  script: curl -sL https://git.io/goreleaser | bash
+  on:
+    tags: true
+    condition: $TRAVIS_OS_NAME = linux
