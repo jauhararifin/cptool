@@ -1,5 +1,7 @@
 # CP Tool
 
+[![Build Status](https://travis-ci.org/jauhararifin/cptool.svg?branch=master)](https://travis-ci.org/jauhararifin/cptool)
+
 Simple bash script to compile and run your solution when solving competitive programming problems.
 
 ## Motivation
