@@ -30,5 +30,5 @@ archive:
   files:
     - LICENSE
     - README.md
-    - langs/*
+    - langs/**/*
     - config
