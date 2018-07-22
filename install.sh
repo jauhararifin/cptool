@@ -1,7 +1,7 @@
 #!/bin/bash
 
 INSTALL_DIR=$HOME/.cptool
-VERSION=1.0.1
+VERSION=1.0.2
 CPTOOL_NAME=cptool_${VERSION}_linux_amd64.tar.gz
 
 curl -Lo /tmp/cptool.tar.gz https://github.com/jauhararifin/cptool/releases/download/v$VERSION/$CPTOOL_NAME > /dev/null 2> /dev/null
