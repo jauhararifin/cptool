@@ -18,8 +18,6 @@ It will download this repository and copy to your computer. You may need to clos
 
 ## Quick Start
 
-[![asciicast](https://asciinema.org/a/ceuBd0zhPMkUNQItWLXFJ6hv0.png)](https://asciinema.org/a/14)
-
 There are some term you need to understand in order to using this tool.
 
 1. Language
@@ -168,20 +166,20 @@ cptool test <language-name> <solution-name> <testcase-prefix>
 
 The testcase prefix is filename prefix of your testcase file. For example, the testcase `tc1` will has all of this prefix: "t", "tc", "tc1". You can run your solution like this `cptool run solution tc`. It will test your solution will all testcases that has "tc" as its prefix.
 
-You can add timeout parameter too like this `cptool test --timeout 5s <solution-name>`, just like the `cptool run` command. In addition you can add `-s` and `-d` flag. `-s` or `--show-stdout` is used to show the output of your solution in the terminal. `-d` or `--show-diff` is used to show the difference between your output and expected output from the testcase's output file. `-d` or `--show-diff` flag only show the diff when your solution answer is different from the expected output.
+You can add timeout parameter too like this `cptool test <solution-name> --timeout 5s`, just like the `cptool run` command.
 
 ## Adding New Language
 
 Cptool currently support three languages: C, C++, Pascal. The language is defined in `langs` directory in your installation folder (default is `~/.cptool`). You can add new language by adding new folder in that directory (`<installation-directory>/langs`). The folder name will be the language name. Inside that folder you need to add four files: `compile`, `debugcompile`, `run`, and `lang.conf`
 
 - `compile` script
-Cptool need to know how to compile the source code solution, The `compile` file contains bash script to compile the source code. You have to specify compilation command in this file. you will receive environment variable `DEST` and `SOURCE` in order to locate the source code location and compiled target. `SOURCE` variable contains the path of your solution file. The `DEST` variable is location where you should put the compiled file. If the compilation is successfull this script must return 0 to the operating system.
+Cptool need to know how to compile the source code solution, The `compile` file contains bash script to compile the source code. You have to specify compilation command in this file. you will receive two parameters in order to locate the source code location and compiled target. First parameter contains the path of your solution file. The second parameter is location where you should put the compiled file. If the compilation is successfull this script must return 0 to the operating system.
 
 - `debugcompile` script
-Sometimes compiler has ability to compile source code in debug mode, you have to specify compilation command to compile the source code in debug mode. This script will also receive `DEST` and `SOURCE` variable just like `compile` script.
+Sometimes compiler has ability to compile source code in debug mode, you have to specify compilation command to compile the source code in debug mode. This script will also receive two parameters just like `compile` script.
 
 - `run` script
-You have to specify how to run your solution in this file. This script will receive an environment variable, `PROGRAM` variable. `PROGRAM` variable contain location of your compiled program path. When the program is exited normally, this script must return 0 to the operating system.
+You have to specify how to run your solution in this file. This script will receive a parameter. The parameter contain location of your compiled program path. When the program is exited normally, this script must return 0 to the operating system.
 
 - `lang.conf` file
 This file contain information about the language. Actually it just need two information: language verbose name and language extension. Language verbose name is just like your language displayed name, but your language name is the folder name. The language extension is the extension of your solution file, for example: the c language has `c` as language extension, pascal language has `pas` as language extension.
