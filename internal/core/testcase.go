@@ -10,7 +10,10 @@ import (
 	"github.com/spf13/afero"
 )
 
-// TestCase represent testcase
+// TestCase represent testcase. A test case is a pair of text file that defines input and expected output of a test case.
+// A file named "example.in" and "example.out" in current working directory considered as a test case named "example".
+// Name property store test case's name. InputPath contain path to test case's input file. OutputPath contains path
+// to test case's expected output file.
 type TestCase struct {
 	Name       string
 	InputPath  string

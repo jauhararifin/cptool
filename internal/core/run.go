@@ -12,7 +12,9 @@ type ExecutionResult struct {
 	Duration time.Duration
 }
 
-// Run will run solution. This will compile the solution first if its not compiled yet
+// Run will run solution. This method will execute the solution using the run script that defined in language.
+// Before the execution begin, this method will compile the solution first by calling Compile method. When there is
+// no error occured, this method return ExecutionResult that contains CompilationResult and execution duration.
 func (cptool *CPTool) Run(
 	ctx context.Context,
 	solution Solution,
@@ -45,7 +47,8 @@ func (cptool *CPTool) Run(
 	}, err
 }
 
-// RunByName will run solution. This will compile the solution first if its not compiled yet
+// RunByName will run solution. This method will search the language and solution by its name and then call Run method.
+// This method will return an error if the language or solution with it's name doesn't exist.
 func (cptool *CPTool) RunByName(
 	ctx context.Context,
 	languageName string,

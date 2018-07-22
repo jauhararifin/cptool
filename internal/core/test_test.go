@@ -23,7 +23,7 @@ func TestTest(t *testing.T) {
 		LastUpdated: time.Now(),
 	}
 
-	_, err := cptool.Test(context.Background(), compileTestLanguage, solution, "test")
+	_, err := cptool.Test(context.Background(), solution, "test")
 	if err != nil {
 		t.Error(err)
 	}

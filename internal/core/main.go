@@ -9,15 +9,15 @@ import (
 )
 
 // MajorVersion incidates current cptool major version
-const MajorVersion = 1
+const MajorVersion = 0
 
 // MinorVersion incidates current cptool minor version
-const MinorVersion = 0
+const MinorVersion = 1
 
 // PatchVersion incidates current cptool patch version
-const PatchVersion = 0
+const PatchVersion = 1
 
-// CPTool represent this tool
+// CPTool stores information about this tool. The information includes version, all known languages, and configuration directories.
 type CPTool struct {
 	MajorVersion int
 	MinorVersion int
@@ -33,7 +33,8 @@ type CPTool struct {
 	homeDirectory       string
 }
 
-// NewDefault create new default cptool instance
+// NewDefault create new default cptool instance. This instance contains information about the tool version,
+// configuration direcories, and languages.
 func NewDefault() (*CPTool, error) {
 	cwd, err := os.Getwd()
 	if err != nil {
@@ -61,7 +62,7 @@ func NewDefault() (*CPTool, error) {
 	}, nil
 }
 
-// Bootstrap will bootstrap cptool
+// Bootstrap will bootstrap cptool. The bootstrap process will load all language from known directories.
 func (cptool *CPTool) Bootstrap() error {
 	cptool.loadAllLanguages()
 	return nil

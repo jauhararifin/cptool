@@ -8,37 +8,25 @@ import (
 	"time"
 )
 
-// CompilationResult store compilation result
+// CompilationResult store the result of compiling solution. The Skipped property indicates whether the compilation
+// process is skipped. The compilation can be skipped when the most up to date solution is already compiled.
+// TargetPath property contain the path to compiled program. Duration property indicates the duration of compilation
+// process.
 type CompilationResult struct {
 	Skipped    bool
 	TargetPath string
 	Duration   time.Duration
 }
 
-// ErrLanguageNotDebuggable indicates that the language is not debuggable
+// ErrLanguageNotDebuggable indicates that the language is not debuggable. This happens at compilation process when
+// the language definition doesn't have debugcompile script to compile the solution with debug mode.
 var ErrLanguageNotDebuggable = errors.New("Language is not debuggable")
 
-// GetCompilationRootDir returns root directory for compilation
-func (cptool *CPTool) getCompilationRootDir() string {
-	return path.Join(cptool.workingDirectory, ".cptool/solutions")
-}
-
-// GetCompiledDirectory returns directory path where compiled program exists
-func (cptool *CPTool) getCompiledDirectory(solution Solution, debug bool) string {
-	language := solution.Language
-	return path.Join(cptool.getCompilationRootDir(), solution.Name, language.Name)
-}
-
-// GetCompiledTarget returns file path to compiled program
-func (cptool *CPTool) getCompiledTarget(solution Solution, debug bool) string {
-	dir := cptool.getCompiledDirectory(solution, debug)
-	if debug {
-		return path.Join(dir, "program_debug")
-	}
-	return path.Join(dir, "program")
-}
-
-// Compile will compile solution if not yet compiled
+// Compile will compile solution if not yet compiled. The compilation prosess will execute compile script of the
+// language. It will use debugcompile script when debug parameter is true. When debug is true, but the language is
+// not debuggable (doesn't contain debugcompile script), an ErrLanguageNotDebuggable error will returned. This function
+// will execute the compilation script (could be compile/debugcompile) that defined in language definition. This execution
+// could be skipped when the solution already compiled before.
 func (cptool *CPTool) Compile(ctx context.Context, solution Solution, debug bool) (CompilationResult, error) {
 	language := solution.Language
 	if debug && !language.Debuggable {
@@ -75,7 +63,8 @@ func (cptool *CPTool) Compile(ctx context.Context, solution Solution, debug bool
 	}, nil
 }
 
-// CompileByName will compile solution if not yet compiled
+// CompileByName will compile solution if not yet compiled. This method will search the language and solution by its name
+// and then call Compile method. This method will return an error if the language or solution with it's name doesn't exist.
 func (cptool *CPTool) CompileByName(ctx context.Context, languageName string, solutionName string, debug bool) (CompilationResult, error) {
 	start := time.Now()
 	language, err := cptool.GetLanguageByName(languageName)
@@ -92,4 +81,21 @@ func (cptool *CPTool) CompileByName(ctx context.Context, languageName string, so
 	}
 	result.Duration = time.Since(start)
 	return result, nil
+}
+
+func (cptool *CPTool) getCompilationRootDir() string {
+	return path.Join(cptool.workingDirectory, ".cptool/solutions")
+}
+
+func (cptool *CPTool) getCompiledDirectory(solution Solution, debug bool) string {
+	language := solution.Language
+	return path.Join(cptool.getCompilationRootDir(), solution.Name, language.Name)
+}
+
+func (cptool *CPTool) getCompiledTarget(solution Solution, debug bool) string {
+	dir := cptool.getCompiledDirectory(solution, debug)
+	if debug {
+		return path.Join(dir, "program_debug")
+	}
+	return path.Join(dir, "program")
 }
