@@ -168,6 +168,10 @@ The testcase prefix is filename prefix of your testcase file. For example, the t
 
 You can add timeout parameter too like this `cptool test <solution-name> --timeout 5s`, just like the `cptool run` command.
 
+## List Languages
+
+You can run `cptool lang` to list all available languages.
+
 ## Adding New Language
 
 Cptool currently support three languages: C, C++, Pascal. The language is defined in `langs` directory in your installation folder (default is `~/.cptool`). You can add new language by adding new folder in that directory (`<installation-directory>/langs`). The folder name will be the language name. Inside that folder you need to add four files: `compile`, `debugcompile`, `run`, and `lang.conf`
