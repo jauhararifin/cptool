@@ -18,8 +18,6 @@ type Cmd interface {
 	SetStderr(io.Writer)
 	SetExtraFiles([]*os.File)
 	SetSysProcAttr(*syscall.SysProcAttr)
-	SetProcess(*os.Process)
-	SetProcessState(*os.ProcessState)
 
 	GetPath() string
 	GetArgs() []string

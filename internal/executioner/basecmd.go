@@ -57,16 +57,6 @@ func (b *BaseCmd) SetSysProcAttr(value *syscall.SysProcAttr) {
 	b.SysProcAttr = value
 }
 
-// SetProcess set Command's Process
-func (b *BaseCmd) SetProcess(value *os.Process) {
-	b.Process = value
-}
-
-// SetProcessState set Command's ProcessState
-func (b *BaseCmd) SetProcessState(value *os.ProcessState) {
-	b.ProcessState = value
-}
-
 // GetPath return the Cmd's Path
 func (b *BaseCmd) GetPath() string {
 	return b.Path
