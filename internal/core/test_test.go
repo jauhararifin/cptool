@@ -33,7 +33,7 @@ func prepareTestCase(cptool *CPTool, inputStr, expectedOutputStr, outputStr stri
 	solution := Solution{
 		Name:        "solution",
 		Language:    compileTestLanguage,
-		Path:        "/solution",
+		Path:        path.Join(cptool.workingDirectory, "solution.lang"),
 		LastUpdated: time.Now(),
 	}
 
@@ -88,5 +88,33 @@ func TestRunSingleTestCaseFailed(t *testing.T) {
 	}
 	if success {
 		t.Error("RunSingleTestCase should returns failed")
+	}
+}
+
+func TestTestByName(t *testing.T) {
+	cptool := newTest()
+	solution, testCase := prepareTestCase(cptool, "input", "expected_output", "expected_output")
+	cptool.languages[solution.Language.Name] = solution.Language
+	cptool.fs.Create(solution.Path)
+	_, err := cptool.TestByName(context.Background(), solution.Language.Name, solution.Name, testCase.Name)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestTestByNameWithMissingLanguage(t *testing.T) {
+	cptool := newTest()
+	_, err := cptool.TestByName(context.Background(), compileTestLanguage.Name, "testsol.lang", "test")
+	if err != ErrNoSuchLanguage {
+		t.Error("TestByName should returns ErrNoSuchLanguage error")
+	}
+}
+
+func TestTestByNameWithMissingSolution(t *testing.T) {
+	cptool := newTest()
+	cptool.languages[compileTestLanguage.Name] = compileTestLanguage
+	_, err := cptool.TestByName(context.Background(), compileTestLanguage.Name, "testsol.lang", "test")
+	if err != ErrNoSuchSolution {
+		t.Error("TestByName should returns ErrNoSuchSolution error")
 	}
 }
