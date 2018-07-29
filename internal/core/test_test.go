@@ -52,7 +52,7 @@ func prepareTestCase(cptool *CPTool, inputStr, expectedOutputStr, outputStr stri
 	output.Close()
 
 	memexec := getCptoolMemExec(cptool)
-	memexec.RunCallback = func(m *executioner.BaseCmd) error {
+	memexec.RunCallback = func(m *executioner.MemCmd) error {
 		if m.GetPath() == solution.Language.CompileScript {
 			return nil
 		}

@@ -14,7 +14,7 @@ func TestRun(t *testing.T) {
 	cptool := newTest()
 	memexec := getCptoolMemExec(cptool)
 	executed := false
-	memexec.RunCallback = func(m *executioner.BaseCmd) error {
+	memexec.RunCallback = func(m *executioner.MemCmd) error {
 		if m.GetPath() == compileTestLanguage.RunScript {
 			executed = true
 		}
@@ -40,7 +40,7 @@ func TestRunWithErrorCompilation(t *testing.T) {
 	cptool := newTest()
 	memexec := getCptoolMemExec(cptool)
 	executed := false
-	memexec.RunCallback = func(m *executioner.BaseCmd) error {
+	memexec.RunCallback = func(m *executioner.MemCmd) error {
 		if m.GetPath() == compileTestLanguage.RunScript {
 			executed = true
 		}
@@ -69,7 +69,7 @@ func TestRunWithError(t *testing.T) {
 	cptool := newTest()
 	memexec := getCptoolMemExec(cptool)
 	executed := false
-	memexec.RunCallback = func(m *executioner.BaseCmd) error {
+	memexec.RunCallback = func(m *executioner.MemCmd) error {
 		if m.GetPath() == compileTestLanguage.RunScript {
 			executed = true
 			return errors.New("some error occured")
@@ -96,7 +96,7 @@ func TestRunByName(t *testing.T) {
 	cptool := newTest()
 	memexec := getCptoolMemExec(cptool)
 	executed := false
-	memexec.RunCallback = func(m *executioner.BaseCmd) error {
+	memexec.RunCallback = func(m *executioner.MemCmd) error {
 		if m.GetPath() == compileTestLanguage.RunScript {
 			executed = true
 		}
@@ -118,7 +118,7 @@ func TestRunByNameWithMissingSolution(t *testing.T) {
 	cptool := newTest()
 	memexec := getCptoolMemExec(cptool)
 	executed := false
-	memexec.RunCallback = func(m *executioner.BaseCmd) error {
+	memexec.RunCallback = func(m *executioner.MemCmd) error {
 		if m.GetPath() == compileTestLanguage.RunScript {
 			executed = true
 		}
@@ -142,7 +142,7 @@ func TestRunByNameWithMissingLanguage(t *testing.T) {
 	cptool := newTest()
 	memexec := getCptoolMemExec(cptool)
 	executed := false
-	memexec.RunCallback = func(m *executioner.BaseCmd) error {
+	memexec.RunCallback = func(m *executioner.MemCmd) error {
 		if m.GetPath() == compileTestLanguage.RunScript {
 			executed = true
 		}

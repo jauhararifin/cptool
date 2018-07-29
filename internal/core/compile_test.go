@@ -39,7 +39,7 @@ func TestCompile(t *testing.T) {
 	}
 	executed := false
 	memexec := getCptoolMemExec(cptool)
-	memexec.RunCallback = func(m *executioner.BaseCmd) error {
+	memexec.RunCallback = func(m *executioner.MemCmd) error {
 		if m.GetPath() == compileTestLanguage.CompileScript {
 			executed = true
 		}
@@ -62,7 +62,7 @@ func TestCompileWithDebug(t *testing.T) {
 	cptool := newTest()
 	executed := false
 	memexec := getCptoolMemExec(cptool)
-	memexec.RunCallback = func(m *executioner.BaseCmd) error {
+	memexec.RunCallback = func(m *executioner.MemCmd) error {
 		if m.GetPath() == compileTestLanguageDebuggable.DebugScript {
 			executed = true
 		}
@@ -89,7 +89,7 @@ func TestCompileWithError(t *testing.T) {
 	cptool := newTest()
 	executed := false
 	memexec := getCptoolMemExec(cptool)
-	memexec.RunCallback = func(m *executioner.BaseCmd) error {
+	memexec.RunCallback = func(m *executioner.MemCmd) error {
 		if m.GetPath() == compileTestLanguage.CompileScript {
 			executed = true
 		}
@@ -117,7 +117,7 @@ func TestCompileWithDebugInNonDebuggableLanguage(t *testing.T) {
 	cptool := newTest()
 	executed := false
 	memexec := getCptoolMemExec(cptool)
-	memexec.RunCallback = func(m *executioner.BaseCmd) error {
+	memexec.RunCallback = func(m *executioner.MemCmd) error {
 		executed = true
 		return nil
 	}
@@ -168,7 +168,7 @@ func TestCompileWithDueDate(t *testing.T) {
 	cptool := newTest()
 	executed := false
 	memexec := getCptoolMemExec(cptool)
-	memexec.RunCallback = func(m *executioner.BaseCmd) error {
+	memexec.RunCallback = func(m *executioner.MemCmd) error {
 		executed = true
 		return nil
 	}
