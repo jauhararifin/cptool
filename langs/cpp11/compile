@@ -1,0 +1,8 @@
+#!/bin/bash
+
+SOURCE=$1
+DEST=$2
+
+g++ -std=c++11 -x c++ -Wall -O2 -static -pipe -o "$DEST" "$SOURCE"
+
+exit $?
