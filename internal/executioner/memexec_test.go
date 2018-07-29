@@ -1,10 +1,11 @@
 package executioner
 
 import (
+	"context"
 	"testing"
 )
 
-func TestMemExecCommand(t *testing.T) {
+func TestMemExecCommandRun(t *testing.T) {
 	e := NewMemExec()
 	executed := false
 	e.RunCallback = func(cmd *MemCmd) error {
@@ -34,6 +35,30 @@ func TestMemExecCommand(t *testing.T) {
 		return nil
 	}
 	cmd := e.Command("commandname", "Arg1", "Arg2", "Arg3")
+	err := cmd.Run()
+	if !executed {
+		t.Error("Run should executed")
+	}
+	if err != nil {
+		t.Error("RUn shouldn't returns any error")
+	}
+}
+
+func TestMemExecCommandContextRun(t *testing.T) {
+	e := NewMemExec()
+	executed := false
+	ctx := context.Background()
+	e.RunCallback = func(cmd *MemCmd) error {
+		executed = true
+		if cmd.GetPath() != "commandname" {
+			t.Error("path should contains commandname")
+		}
+		if cmd.Context != ctx {
+			t.Error("context differ")
+		}
+		return nil
+	}
+	cmd := e.CommandContext(ctx, "commandname")
 	err := cmd.Run()
 	if !executed {
 		t.Error("Run should executed")
