@@ -29,6 +29,7 @@ func Execute() {
 	rootCommand.AddCommand(initRunCommand())
 	rootCommand.AddCommand(initTestCommand())
 	rootCommand.AddCommand(initLangCommand())
+	rootCommand.AddCommand(initCleanCommand())
 
 	if err := rootCommand.Execute(); err != nil {
 		fmt.Println(err)

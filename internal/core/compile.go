@@ -83,13 +83,14 @@ func (cptool *CPTool) CompileByName(ctx context.Context, languageName string, so
 	return result, nil
 }
 
-func (cptool *CPTool) getCompilationRootDir() string {
+// GetCompilationRootDir returns directory of all compiled solutions.
+func (cptool *CPTool) GetCompilationRootDir() string {
 	return path.Join(cptool.workingDirectory, ".cptool/solutions")
 }
 
 func (cptool *CPTool) getCompiledDirectory(solution Solution, debug bool) string {
 	language := solution.Language
-	return path.Join(cptool.getCompilationRootDir(), solution.Name, language.Name)
+	return path.Join(cptool.GetCompilationRootDir(), solution.Name, language.Name)
 }
 
 func (cptool *CPTool) getCompiledTarget(solution Solution, debug bool) string {

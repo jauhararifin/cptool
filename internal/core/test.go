@@ -99,8 +99,13 @@ func (cptool *CPTool) TestByName(
 	return cptool.Test(ctx, solution, testPrefix)
 }
 
+// GetOutputRootDir returns directory of all tested solution's output.
+func (cptool *CPTool) GetOutputRootDir() string {
+	return path.Join(cptool.workingDirectory, ".cptool/outputs")
+}
+
 func (cptool *CPTool) getOutputTarget(solution Solution, testCase TestCase) string {
-	return path.Join(cptool.workingDirectory, ".cptool/outputs", solution.Name, solution.Language.Name, testCase.Name)
+	return path.Join(cptool.GetOutputRootDir(), solution.Name, solution.Language.Name, testCase.Name)
 }
 
 func (cptool *CPTool) runSingleTest(ctx context.Context, solution Solution, testCase TestCase) (bool, time.Duration, error) {
