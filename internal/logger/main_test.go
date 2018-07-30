@@ -2,7 +2,6 @@ package logger
 
 import (
 	"bytes"
-	"fmt"
 	"strings"
 	"testing"
 )
@@ -12,7 +11,6 @@ func TestPrintInfo(t *testing.T) {
 	OutputTarget = buf
 	PrintInfo("just", "some", "test")
 	str := buf.String()
-	fmt.Println(str)
 	if !strings.Contains(str, "Info") || !strings.Contains(str, "justsometest") {
 		t.Fail()
 	}
