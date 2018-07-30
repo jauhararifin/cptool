@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"errors"
 	"path"
 	"testing"
 	"time"
@@ -64,7 +65,6 @@ func prepareTestCase(cptool *CPTool, inputStr, expectedOutputStr, outputStr stri
 }
 
 func TestRunSingleTestCase(t *testing.T) {
-	// ctx context.Context, solution Solution, testCase TestCase
 	cptool := newTest()
 	solution, testCase := prepareTestCase(cptool, "input", "expected_output", "expected_output")
 	cptool.languages[solution.Language.Name] = solution.Language
@@ -78,13 +78,57 @@ func TestRunSingleTestCase(t *testing.T) {
 }
 
 func TestRunSingleTestCaseFailed(t *testing.T) {
-	// ctx context.Context, solution Solution, testCase TestCase
 	cptool := newTest()
 	solution, testCase := prepareTestCase(cptool, "input", "expected_output", "some_different_output_with_exptected_output")
 	cptool.languages[solution.Language.Name] = solution.Language
 	success, _, err := cptool.runSingleTest(context.Background(), solution, testCase)
 	if err != nil {
 		t.Error(err)
+	}
+	if success {
+		t.Error("RunSingleTestCase should returns failed")
+	}
+}
+
+func TestRunSingleTestCaseSkippedDueToRuntimeError(t *testing.T) {
+	cptool := newTest()
+	solution, testCase := prepareTestCase(cptool, "input", "expected_output", "expected_output")
+	cptool.languages[solution.Language.Name] = solution.Language
+	memexec := getCptoolMemExec(cptool)
+	memexec.RunCallback = func(m *executioner.MemCmd) error {
+		return errors.New("some error")
+	}
+	success, _, err := cptool.runSingleTest(context.Background(), solution, testCase)
+	if err == nil {
+		t.Error("RunSingleTestCase should returns error")
+	}
+	if success {
+		t.Error("RunSingleTestCase should returns failed")
+	}
+}
+
+func TestRunSingleTestCaseSkippedDueToMissingInput(t *testing.T) {
+	cptool := newTest()
+	solution, testCase := prepareTestCase(cptool, "input", "expected_output", "expected_output")
+	testCase.InputPath = "/tmp/wow"
+	cptool.languages[solution.Language.Name] = solution.Language
+	success, _, err := cptool.runSingleTest(context.Background(), solution, testCase)
+	if err == nil {
+		t.Error("RunSingleTestCase should returns error")
+	}
+	if success {
+		t.Error("RunSingleTestCase should returns failed")
+	}
+}
+
+func TestRunSingleTestCaseSkippedDueToMissingOutput(t *testing.T) {
+	cptool := newTest()
+	solution, testCase := prepareTestCase(cptool, "input", "expected_output", "expected_output")
+	testCase.OutputPath = "/tmp/wow"
+	cptool.languages[solution.Language.Name] = solution.Language
+	success, _, err := cptool.runSingleTest(context.Background(), solution, testCase)
+	if err == nil {
+		t.Error("RunSingleTestCase should returns error")
 	}
 	if success {
 		t.Error("RunSingleTestCase should returns failed")
@@ -99,6 +143,24 @@ func TestTestByName(t *testing.T) {
 	_, err := cptool.TestByName(context.Background(), solution.Language.Name, solution.Name, testCase.Name)
 	if err != nil {
 		t.Error(err)
+	}
+}
+
+func TestTestByNameSkipped(t *testing.T) {
+	cptool := newTest()
+	solution, testCase := prepareTestCase(cptool, "input", "expected_output", "expected_output")
+	memexec := getCptoolMemExec(cptool)
+	memexec.RunCallback = func(m *executioner.MemCmd) error {
+		return errors.New("some error")
+	}
+	cptool.languages[solution.Language.Name] = solution.Language
+	cptool.fs.Create(solution.Path)
+	result, err := cptool.TestByName(context.Background(), solution.Language.Name, solution.Name, testCase.Name)
+	if err != nil {
+		t.Error(err)
+	}
+	if result.UnsuccessfullTestsCount != 1 {
+		t.Error("TestByName should returns 1 unsuccessfull testcase")
 	}
 }
 

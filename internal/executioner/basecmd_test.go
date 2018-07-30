@@ -2,8 +2,10 @@ package executioner
 
 import (
 	"bytes"
+	"os"
 	"os/exec"
 	"strings"
+	"syscall"
 	"testing"
 )
 
@@ -65,6 +67,21 @@ func TestBaseCmdSetter(t *testing.T) {
 	if baseCmd.Stderr != writerErr {
 		t.Error("Stderr mismatch")
 	}
+
+	var tempFile os.File
+	baseCmd.SetExtraFiles([]*os.File{&tempFile})
+	if len(baseCmd.ExtraFiles) != 1 {
+		t.Error("ExtraFiles should contains 1 elements")
+	}
+	if baseCmd.ExtraFiles[0] != &tempFile {
+		t.Error("ExtraFiles mismatch")
+	}
+
+	var sysProcAttr syscall.SysProcAttr
+	baseCmd.SetSysProcAttr(&sysProcAttr)
+	if baseCmd.SysProcAttr != &sysProcAttr {
+		t.Error("SysProcAttr mismatch")
+	}
 }
 
 func TestBaseCmdGetter(t *testing.T) {
@@ -124,5 +141,30 @@ func TestBaseCmdGetter(t *testing.T) {
 	baseCmd.Stderr = writerErr
 	if baseCmd.GetStderr() != writerErr {
 		t.Error("GetStderr returns wrong writer")
+	}
+
+	var tempFile os.File
+	baseCmd.ExtraFiles = []*os.File{&tempFile}
+	if len(baseCmd.GetExtraFiles()) != 1 {
+		t.Error("ExtraFiles should contains 1 elements")
+	}
+	if baseCmd.GetExtraFiles()[0] != &tempFile {
+		t.Error("ExtraFiles mismatch")
+	}
+
+	var sysProcAttr syscall.SysProcAttr
+	baseCmd.SysProcAttr = &sysProcAttr
+	if baseCmd.GetSysProcAttr() != &sysProcAttr {
+		t.Error("SysProcAttr mismatch")
+	}
+
+	baseCmd.Process = &os.Process{}
+	if baseCmd.GetProcess() != baseCmd.Process {
+		t.Error("Process mismatch")
+	}
+
+	baseCmd.ProcessState = &os.ProcessState{}
+	if baseCmd.GetProcessState() != baseCmd.ProcessState {
+		t.Error("ProcessState mismatch")
 	}
 }

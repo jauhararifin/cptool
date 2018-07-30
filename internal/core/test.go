@@ -109,12 +109,16 @@ func (cptool *CPTool) runSingleTest(ctx context.Context, solution Solution, test
 		return false, 0, err
 	}
 	outputFile, err := cptool.fs.Create(outputFilePath)
-	defer outputFile.Close()
+	if outputFile != nil {
+		defer outputFile.Close()
+	}
 	if err != nil {
 		return false, 0, err
 	}
 	inputFile, err := cptool.fs.Open(testCase.InputPath)
-	defer inputFile.Close()
+	if inputFile != nil {
+		defer inputFile.Close()
+	}
 	if err != nil {
 		return false, 0, err
 	}
@@ -129,7 +133,9 @@ func (cptool *CPTool) runSingleTest(ctx context.Context, solution Solution, test
 		return false, 0, err
 	}
 	expectedOutputFile, err := cptool.fs.Open(testCase.OutputPath)
-	defer expectedOutputFile.Close()
+	if expectedOutputFile != nil {
+		defer expectedOutputFile.Close()
+	}
 	if err != nil {
 		return false, 0, err
 	}
