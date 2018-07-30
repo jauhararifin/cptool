@@ -10,7 +10,7 @@ notifications:
   email: false
 
 before_install:                                                                 
-  - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh  
+  - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | DEP_RELEASE_TAG=v0.5.0 sh  
   - dep ensure
   - go get -u golang.org/x/lint/golint
 
