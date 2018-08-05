@@ -22,14 +22,11 @@ It will download this repository and copy to your computer. You may need to clos
 
 There are some term you need to understand in order to using this tool.
 
-1. Language
-The programming language that can be used for writing your solution. Cptool currently support c, c++ and pascal only. The language has definition that gives cptool information about its name, extension, how to compile and run solution in this language.
+1. **Language**. The programming language that can be used for writing your solution. Cptool currently support c, c++ and pascal only. The language has definition that gives cptool information about its name, extension, how to compile and run solution in this language.
 
-2. Solution
-This is your solution source code. Your solution is a single file with a name and extension. The basename (filename without extension) of your solution file is considered as your solution name and the extension can be considered as your solution language.
+2. **Solution**. This is your solution source code. Your solution is a single file with a name and extension. The basename (filename without extension) of your solution file is considered as your solution name and the extension can be considered as your solution language.
 
-3. Testcase
-This is a pair of file which has extension .in and .out that represent testcase for your solution. You can test your solution using this testcase. A testcase should contain two file that has .in and .out extension and has exactly same basename (filename without extension).
+3. **Testcase**. This is a pair of file which has extension .in and .out that represent testcase for your solution. You can test your solution using this testcase. A testcase should contain two file that has .in and .out extension and has exactly same basename (filename without extension).
 
 For understanding how to use this tool, lets consider the most famous problem in competitive programming world. The "A+B" problem:
 ```
@@ -99,10 +96,10 @@ Lets say you have found some testcases to test your solution. You can save this 
 This two files represent testcase for your solution, and you can run and test your solution using this testcase by running this command:
 
 ```
-cptool test aplusb aplusb
+cptool test aplusb aplusb.sample
 ```
 
-It will run (and compile if necessary) your solution using testcase as input and it will compare your solution output with the output file. It will inform you whether you passed the testcase or not.
+The `aplusb.sample` argument tell the prefix of testcase you want to use. It will run (and compile if necessary) your solution using testcase as input and it will compare your solution output with the output file. It will inform you whether you passed the test or not.
 
 ## Compile Solution
 
