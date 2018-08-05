@@ -1,12 +1,23 @@
 #!/bin/bash
 
+echo "Installing CPTool"
+
 GITHUB_REPO=jauhararifin/cptool
 RELEASES_URL=https://api.github.com/repos/$GITHUB_REPO/releases
 INSTALL_DIR=$HOME/.cptool
-VERSION=$(curl -L $RELEASES_URL 2> /dev/null | grep -sEoa "\"tag_name\": \"v[0-9]+\.[0-9]+\.[0-9]+\"" | head -n 1 | grep -sEoa [0-9]+\.[0-9]+\.[0-9]+)
-CPTOOL_NAME=cptool_${VERSION}_linux_amd64.tar.gz
 
-echo "Installing CPTool v$VERSION"
+VERSION=$(curl -L $RELEASES_URL 2> /dev/null | grep -sEoa "\"tag_name\": \"v[0-9]+\.[0-9]+\.[0-9]+\"" | head -n 1 | grep -sEoa [0-9]+\.[0-9]+\.[0-9]+)
+echo "Using version v$VERSION"
+
+OS=linux
+ARCH=`uname -m`
+if [[ $ARCH == 'x86_64' ]]; then
+  ARCH=amd64
+else
+  ARCH=386
+fi
+CPTOOL_NAME=cptool_${VERSION}_${OS}_${ARCH}.tar.gz
+echo "Using OS=${OS} ARCH=${ARCH}"
 
 echo "Downloading binary"
 curl -Lo /tmp/cptool.tar.gz https://github.com/$GITHUB_REPO/releases/download/v$VERSION/$CPTOOL_NAME > /dev/null 2> /dev/null
