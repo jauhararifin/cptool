@@ -2,6 +2,10 @@
 
 PROGRAM=$1
 
-./$PROGRAM
+if [[ $PROGRAM == "/*" ]]; then
+    $PROGRAM
+else
+    ./$PROGRAM
+fi
 
 exit $?
