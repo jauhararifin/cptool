@@ -13,13 +13,18 @@ func initLangCommand() *cobra.Command {
 		Version: cptool.GetVersion(),
 		Run: func(cmd *cobra.Command, args []string) {
 			languages, _ := cptool.GetAllLanguages()
+			defaultLanguage, _ := cptool.GetDefaultLanguage()
 
 			if len(languages) == 0 {
 				fmt.Println("No languages defined")
 			}
 
 			for _, lang := range languages {
-				fmt.Printf("[ %s ]\n", lang.Name)
+				if defaultLanguage.Name == lang.Name {
+					fmt.Printf("[ %s ] (default language)\n", lang.Name)
+				} else {
+					fmt.Printf("[ %s ]\n", lang.Name)
+				}
 				fmt.Printf("  language name:  %s\n", lang.VerboseName)
 				fmt.Printf("  file extension: %s\n", lang.Extension)
 				fmt.Printf("  compile script: %s\n", lang.CompileScript)
