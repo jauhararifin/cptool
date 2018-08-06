@@ -15,7 +15,7 @@ const MajorVersion = 1
 const MinorVersion = 0
 
 // PatchVersion incidates current cptool patch version
-const PatchVersion = 7
+const PatchVersion = 8
 
 // CPTool stores information about this tool. The information includes version, all known languages, and configuration directories.
 type CPTool struct {

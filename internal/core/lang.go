@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"path"
+	"sort"
 
 	"github.com/BurntSushi/toml"
 	"github.com/spf13/afero"
@@ -89,6 +90,9 @@ func (cptool *CPTool) GetAllLanguages() ([]Language, map[string]Language) {
 	for _, value := range cptool.languages {
 		languages = append(languages, value)
 	}
+	sort.SliceStable(languages, func(i, j int) bool {
+		return languages[i].Name < languages[j].Name
+	})
 	return languages, cptool.languages
 }
 
