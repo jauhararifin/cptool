@@ -2,7 +2,7 @@
 
 PROGRAM=$1
 
-if [[ $PROGRAM == "/*" ]]; then
+if [[ $PROGRAM == /* ]]; then
     $PROGRAM
 else
     ./$PROGRAM
