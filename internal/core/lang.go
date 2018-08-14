@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"path"
+	"path/filepath"
 	"sort"
 
 	"github.com/BurntSushi/toml"
@@ -223,10 +224,11 @@ func (cptool *CPTool) loadAllLanguages() {
 			if info.IsDir() {
 				if lang, err := cptool.getLanguageFromDirectory(path); err == nil {
 					if _, ok := cptool.languages[lang.Name]; ok {
-						return nil
+						return filepath.SkipDir
 					}
 					cptool.languages[lang.Name] = lang
 				}
+				return filepath.SkipDir
 			}
 			return nil
 		})
