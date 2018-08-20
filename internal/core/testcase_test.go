@@ -36,39 +36,6 @@ func TestGetTestCasesWithPrefix(t *testing.T) {
 	}
 }
 
-func TestGetTestCasesWithPrefixInDirectory(t *testing.T) {
-	cptool := newTest()
-	cptool.fs.Create(path.Join(cptool.workingDirectory, "test/1.in"))
-	cptool.fs.Create(path.Join(cptool.workingDirectory, "test/1.out"))
-	cptool.fs.Create(path.Join(cptool.workingDirectory, "test/2.in"))
-	cptool.fs.Create(path.Join(cptool.workingDirectory, "test/2.out"))
-	cptool.fs.Create(path.Join(cptool.workingDirectory, "other/1.in"))
-	cptool.fs.Create(path.Join(cptool.workingDirectory, "other/1.out"))
-
-	testcases := cptool.getAllTestCaseWithPrefix("test")
-	if len(testcases) != 2 {
-		t.Error("getAllTestCaseWithPrefix should return 2 testcase")
-	}
-
-	tc1 := TestCase{
-		Name:       "test/1",
-		InputPath:  path.Join(cptool.workingDirectory, "test/1.in"),
-		OutputPath: path.Join(cptool.workingDirectory, "test/1.out"),
-	}
-	if testcases[0] != tc1 {
-		t.Error("getAllTestCaseWithPrefix should return ", tc1)
-	}
-
-	tc2 := TestCase{
-		Name:       "test/2",
-		InputPath:  path.Join(cptool.workingDirectory, "test/2.in"),
-		OutputPath: path.Join(cptool.workingDirectory, "test/2.out"),
-	}
-	if testcases[1] != tc2 {
-		t.Error("getAllTestCaseWithPrefix should return ", tc2)
-	}
-}
-
 func TestGetTestCasesWithPrefixWithoutOutputFile(t *testing.T) {
 	cptool := newTest()
 	cptool.fs.Create(path.Join(cptool.workingDirectory, "test/1.in"))
