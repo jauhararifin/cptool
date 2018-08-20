@@ -36,7 +36,7 @@ func (cptool *CPTool) getAllTestCaseWithPrefix(testcasePrefix string) []TestCase
 	testCases := make([]TestCase, 0)
 	cwd := filepath.Clean(cptool.workingDirectory)
 	afero.Walk(cptool.fs, cwd, func(testPath string, info os.FileInfo, err error) error {
-		if info.IsDir() {
+		if info.IsDir() && testPath != cwd {
 			return filepath.SkipDir
 		}
 		relativePath := filepath.Clean(testPath)[len(cwd):]

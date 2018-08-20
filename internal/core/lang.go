@@ -220,9 +220,9 @@ func (cptool *CPTool) loadAllLanguages() {
 			continue
 		}
 
-		afero.Walk(cptool.fs, path, func(path string, info os.FileInfo, err error) error {
-			if info.IsDir() {
-				if lang, err := cptool.getLanguageFromDirectory(path); err == nil {
+		afero.Walk(cptool.fs, path, func(langPath string, info os.FileInfo, err error) error {
+			if info.IsDir() && langPath != path {
+				if lang, err := cptool.getLanguageFromDirectory(langPath); err == nil {
 					if _, ok := cptool.languages[lang.Name]; ok {
 						return filepath.SkipDir
 					}
