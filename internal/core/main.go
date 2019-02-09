@@ -53,7 +53,7 @@ func New(exec executioner.Exec, log *logger.Logger) (*CPTool, error) {
 		cptoolHomeDirectory: os.Getenv("CPTOOL_HOME"),
 		homeDirectory:       user.HomeDir,
 
-		logger: logger.New(os.Stderr, logger.INFO),
+		logger: log,
 	}, nil
 }
 

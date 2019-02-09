@@ -11,7 +11,7 @@ import (
 func newDefaultCptool(cmd *cobra.Command) (*core.CPTool, *logger.Logger) {
 	loggingLevel := logger.INFO
 	if cmd != nil {
-		if val, _ := cmd.PersistentFlags().GetBool("verbose"); val {
+		if val, _ := cmd.Flags().GetBool("verbose"); val {
 			loggingLevel = logger.VERBOSE
 		}
 	}

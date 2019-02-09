@@ -5,7 +5,7 @@ import (
 )
 
 func initRootCommand() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "cptool",
 		Short: "Simple tool that help you compile and run your competitive programming solution",
 		Long: "Simple and easy to use tool for compile and run your competitive programming\n" +
@@ -15,4 +15,6 @@ func initRootCommand() *cobra.Command {
 			cmd.Help()
 		},
 	}
+	cmd.PersistentFlags().BoolP("verbose", "v", false, "Give verbose output")
+	return cmd
 }
