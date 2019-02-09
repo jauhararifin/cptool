@@ -223,8 +223,8 @@ func TestMemExecCommandStderrPipeNil(t *testing.T) {
 	if err != nil {
 		t.Error("StderrPipeCallback shouldn't returns any error")
 	}
-	if reader != nil {
-		t.Error("StderrPipeCallback should returns nil reader")
+	if reader == nil {
+		t.Error("StderrPipeCallback shouldn't returns nil reader")
 	}
 }
 
@@ -255,8 +255,8 @@ func TestMemExecCommandStdinPipeNil(t *testing.T) {
 	if err != nil {
 		t.Error("StdinPipeCallback shouldn't returns any error")
 	}
-	if writer != nil {
-		t.Error("StdinPipeCallback should returns nil writer")
+	if writer == nil {
+		t.Error("StdinPipeCallback shouldn't returns nil writer")
 	}
 }
 
@@ -288,8 +288,8 @@ func TestMemExecCommandStdoutPipeNil(t *testing.T) {
 	if err != nil {
 		t.Error("StdoutPipeCallback shouldn't returns any error")
 	}
-	if reader != nil {
-		t.Error("StdoutPipeCallback should returns nil reader")
+	if reader == nil {
+		t.Error("StdoutPipeCallback shouldn't returns nil reader")
 	}
 }
 
