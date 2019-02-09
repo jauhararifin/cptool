@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func parseSolution(args []string) (string, core.Language) {
+func parseSolution(cptool *core.CPTool, logger *logger.Logger, args []string) (string, core.Language) {
 	if len(args) > 1 {
 		solutionName := args[1]
 		language, err := cptool.GetLanguageByName(args[0])
@@ -35,10 +35,11 @@ func initCompileCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "compile [LANGUAGE] SOLUTION",
 		Short:   "Compile competitive programming solution",
-		Version: cptool.GetVersion(),
+		Version: GetVersion(),
 		Args:    cobra.RangeArgs(1, 2),
 		Run: func(cmd *cobra.Command, args []string) {
-			solutionName, language := parseSolution(args)
+			cptool, logger := newDefaultCptool(cmd)
+			solutionName, language := parseSolution(cptool, logger, args)
 			logger.PrintInfo("Compiling solution: ", solutionName)
 			result, err := cptool.CompileByName(context.Background(), language.Name, solutionName, debug)
 			if err != nil {

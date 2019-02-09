@@ -5,6 +5,7 @@ import (
 	"os/user"
 
 	"github.com/jauhararifin/cptool/internal/executioner"
+	"github.com/jauhararifin/cptool/internal/logger"
 	"github.com/spf13/afero"
 )
 
@@ -31,11 +32,13 @@ type CPTool struct {
 	workingDirectory    string
 	cptoolHomeDirectory string
 	homeDirectory       string
+
+	logger *logger.Logger
 }
 
 // NewDefault create new default cptool instance. This instance contains information about the tool version,
 // configuration direcories, and languages.
-func NewDefault() (*CPTool, error) {
+func NewDefault(logger *logger.Logger) (*CPTool, error) {
 	cwd, err := os.Getwd()
 	if err != nil {
 		return nil, err
@@ -59,6 +62,8 @@ func NewDefault() (*CPTool, error) {
 		workingDirectory:    cwd,
 		cptoolHomeDirectory: os.Getenv("CPTOOL_HOME"),
 		homeDirectory:       user.HomeDir,
+
+		logger: logger,
 	}, nil
 }
 

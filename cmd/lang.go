@@ -10,8 +10,9 @@ func initLangCommand() *cobra.Command {
 	return &cobra.Command{
 		Use:     "lang",
 		Short:   "List all available languages",
-		Version: cptool.GetVersion(),
+		Version: GetVersion(),
 		Run: func(cmd *cobra.Command, args []string) {
+			cptool, _ := newDefaultCptool(cmd)
 			languages, _ := cptool.GetAllLanguages()
 			defaultLanguage, _ := cptool.GetDefaultLanguage()
 

@@ -10,7 +10,7 @@ func initRootCommand() *cobra.Command {
 		Short: "Simple tool that help you compile and run your competitive programming solution",
 		Long: "Simple and easy to use tool for compile and run your competitive programming\n" +
 			"solution built in Go. Check github.com/jauhararifin/cptool for more information",
-		Version: cptool.GetVersion(),
+		Version: GetVersion(),
 		Run: func(cmd *cobra.Command, args []string) {
 			cmd.Help()
 		},

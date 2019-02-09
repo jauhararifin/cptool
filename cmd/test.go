@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func parseSolutionAndTestcasePrefix(args []string) (string, core.Language, string) {
+func parseSolutionAndTestcasePrefix(cptool *core.CPTool, logger *logger.Logger, args []string) (string, core.Language, string) {
 	if len(args) > 2 {
 		solutionName := args[1]
 		testcasePrefix := args[2]
@@ -43,9 +43,11 @@ func initTestCommand() *cobra.Command {
 			"with provided testcases. The program will be killed if still running after some period of time, you can change\n" +
 			"this behaviour using --timeout option.",
 		Args:    cobra.RangeArgs(2, 3),
-		Version: cptool.GetVersion(),
+		Version: GetVersion(),
 		Run: func(cmd *cobra.Command, args []string) {
-			solutionName, language, testcasePrefix := parseSolutionAndTestcasePrefix(args)
+			cptool, logger := newDefaultCptool(cmd)
+
+			solutionName, language, testcasePrefix := parseSolutionAndTestcasePrefix(cptool, logger, args)
 
 			ctx, cancel := context.WithTimeout(context.Background(), timeout)
 			defer cancel()

@@ -5,7 +5,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/jauhararifin/cptool/internal/logger"
 	"github.com/spf13/cobra"
 )
 
@@ -20,9 +19,11 @@ func initRunCommand() *cobra.Command {
 			"will be killed if still running after some period of time, you can change this behaviour using --timeout\n" +
 			"option. This option only works if the program is running using stdin from file and not from terminal.",
 		Args:    cobra.RangeArgs(1, 2),
-		Version: cptool.GetVersion(),
+		Version: GetVersion(),
 		Run: func(cmd *cobra.Command, args []string) {
-			solutionName, language := parseSolution(args)
+			cptool, logger := newDefaultCptool(cmd)
+
+			solutionName, language := parseSolution(cptool, logger, args)
 
 			isTerminal := true
 			stat, _ := os.Stdin.Stat()
