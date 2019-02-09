@@ -9,21 +9,8 @@ import (
 	"github.com/spf13/afero"
 )
 
-// MajorVersion incidates current cptool major version
-const MajorVersion = 1
-
-// MinorVersion incidates current cptool minor version
-const MinorVersion = 0
-
-// PatchVersion incidates current cptool patch version
-const PatchVersion = 8
-
 // CPTool stores information about this tool. The information includes version, all known languages, and configuration directories.
 type CPTool struct {
-	MajorVersion int
-	MinorVersion int
-	PatchVersion int
-
 	languages map[string]Language
 
 	exec executioner.Exec
@@ -36,9 +23,8 @@ type CPTool struct {
 	logger *logger.Logger
 }
 
-// NewDefault create new default cptool instance. This instance contains information about the tool version,
-// configuration direcories, and languages.
-func NewDefault(logger *logger.Logger) (*CPTool, error) {
+// New create new cptool instance. This instance contains working directory, cptool home directory, user home directory, and logger
+func New(exec executioner.Exec, log *logger.Logger) (*CPTool, error) {
 	cwd, err := os.Getwd()
 	if err != nil {
 		return nil, err
@@ -49,11 +35,15 @@ func NewDefault(logger *logger.Logger) (*CPTool, error) {
 		return nil, err
 	}
 
-	return &CPTool{
-		MajorVersion: MajorVersion,
-		MinorVersion: MinorVersion,
-		PatchVersion: PatchVersion,
+	if exec == nil {
+		exec = executioner.NewOSExec()
+	}
 
+	if log == nil {
+		log = logger.New(os.Stderr, logger.INFO)
+	}
+
+	return &CPTool{
 		languages: make(map[string]Language),
 
 		exec: executioner.NewOSExec(),
@@ -63,7 +53,7 @@ func NewDefault(logger *logger.Logger) (*CPTool, error) {
 		cptoolHomeDirectory: os.Getenv("CPTOOL_HOME"),
 		homeDirectory:       user.HomeDir,
 
-		logger: logger,
+		logger: logger.New(os.Stderr, logger.INFO),
 	}, nil
 }
 

@@ -1,8 +1,11 @@
 package core
 
 import (
+	"bytes"
 	"context"
 	"errors"
+	"io"
+	"io/ioutil"
 	"path"
 	"testing"
 	"time"
@@ -39,7 +42,10 @@ func TestCompile(t *testing.T) {
 	}
 	executed := false
 	memexec := getCptoolMemExec(cptool)
-	memexec.RunCallback = func(m *executioner.MemCmd) error {
+	memexec.StderrPipeCallback = func(m *executioner.MemCmd) (io.ReadCloser, error) {
+		return ioutil.NopCloser(bytes.NewReader([]byte("test test test"))), nil
+	}
+	memexec.StartCallback = func(m *executioner.MemCmd) error {
 		if m.GetPath() == compileTestLanguage.CompileScript {
 			executed = true
 		}
@@ -62,7 +68,10 @@ func TestCompileWithDebug(t *testing.T) {
 	cptool := newTest()
 	executed := false
 	memexec := getCptoolMemExec(cptool)
-	memexec.RunCallback = func(m *executioner.MemCmd) error {
+	memexec.StderrPipeCallback = func(m *executioner.MemCmd) (io.ReadCloser, error) {
+		return ioutil.NopCloser(bytes.NewReader([]byte("test test test"))), nil
+	}
+	memexec.StartCallback = func(m *executioner.MemCmd) error {
 		if m.GetPath() == compileTestLanguageDebuggable.DebugScript {
 			executed = true
 		}
@@ -85,14 +94,21 @@ func TestCompileWithDebug(t *testing.T) {
 		t.Error("Compile should not skip the compilation")
 	}
 }
+
 func TestCompileWithError(t *testing.T) {
 	cptool := newTest()
 	executed := false
 	memexec := getCptoolMemExec(cptool)
-	memexec.RunCallback = func(m *executioner.MemCmd) error {
+	memexec.StderrPipeCallback = func(m *executioner.MemCmd) (io.ReadCloser, error) {
+		return ioutil.NopCloser(bytes.NewReader([]byte("some error message"))), nil
+	}
+	memexec.StartCallback = func(m *executioner.MemCmd) error {
 		if m.GetPath() == compileTestLanguage.CompileScript {
 			executed = true
 		}
+		return nil
+	}
+	memexec.WaitCallback = func(m *executioner.MemCmd) error {
 		return errors.New("just some error")
 	}
 	cptool.languages["some_lang"] = compileTestLanguage
@@ -110,6 +126,9 @@ func TestCompileWithError(t *testing.T) {
 	}
 	if result.Skipped {
 		t.Error("Compile should not skip the compilation")
+	}
+	if result.ErrorMessage != "some error message" {
+		t.Error("Compile should return error message equal to \"some error message\"")
 	}
 }
 

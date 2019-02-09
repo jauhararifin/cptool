@@ -8,6 +8,7 @@ import (
 	"sort"
 
 	"github.com/BurntSushi/toml"
+	"github.com/jauhararifin/cptool/internal/logger"
 	"github.com/spf13/afero"
 )
 
@@ -118,8 +119,14 @@ func (cptool *CPTool) GetDefaultLanguage() (Language, error) {
 	configurationPaths := cptool.GetConfigurationPaths()
 	for _, confPath := range configurationPaths {
 		userConfigPath := path.Join(confPath, "config")
+		if cptool.logger != nil {
+			cptool.logger.Println(logger.VERBOSE, "Searching default language config in:", userConfigPath)
+		}
 		info, err := cptool.fs.Stat(userConfigPath)
 		if err != nil || info.IsDir() {
+			if cptool.logger != nil {
+				cptool.logger.Println(logger.VERBOSE, "Language config doesn't found in:", userConfigPath)
+			}
 			continue
 		}
 
@@ -130,6 +137,9 @@ func (cptool *CPTool) GetDefaultLanguage() (Language, error) {
 			if _, err = toml.DecodeReader(userConfigFile, &result); err == nil {
 				if len(result.DefaultLanguage) > 0 {
 					if defaultLanguage, err := cptool.GetLanguageByName(result.DefaultLanguage); err == nil {
+						if cptool.logger != nil {
+							cptool.logger.Println(logger.VERBOSE, "Use default language:", defaultLanguage.Name)
+						}
 						return defaultLanguage, nil
 					}
 				}
@@ -227,6 +237,9 @@ func (cptool *CPTool) loadAllLanguages() {
 						return filepath.SkipDir
 					}
 					cptool.languages[lang.Name] = lang
+					if cptool.logger != nil {
+						cptool.logger.Printf(logger.VERBOSE, "Found language: %s, in: %s\n", lang.Name, langPath)
+					}
 				}
 				return filepath.SkipDir
 			}

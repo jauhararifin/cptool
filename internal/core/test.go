@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/jauhararifin/cptool/internal/logger"
 	"github.com/udhos/equalfile"
 )
 
@@ -52,11 +53,25 @@ func (cptool *CPTool) Test(
 	testPrefix string,
 ) (TestResult, error) {
 	testCases := cptool.getAllTestCaseWithPrefix(testPrefix)
+	if cptool.logger != nil {
+		for _, tc := range testCases {
+			cptool.logger.Println(logger.VERBOSE, "Test case found:", tc.Name)
+			cptool.logger.Println(logger.VERBOSE, "Using input file:", tc.InputPath)
+			cptool.logger.Println(logger.VERBOSE, "Using output file:", tc.OutputPath)
+		}
+	}
+
 	results := TestResult{}
 	startTime := time.Now()
 	for _, testCase := range testCases {
-		succes, duration, err := cptool.runSingleTest(ctx, solution, testCase)
+		if cptool.logger != nil {
+			cptool.logger.Println(logger.VERBOSE, "Testing program using test case:", testCase.Name)
+		}
+		success, duration, err := cptool.runSingleTest(ctx, solution, testCase)
 		if err != nil {
+			if cptool.logger != nil {
+				cptool.logger.Println(logger.VERBOSE, "Program execution return an error")
+			}
 			results.TestCaseResults = append(results.TestCaseResults, TestCaseResult{
 				Testcase: testCase,
 				Status:   TestCaseSkipped,
@@ -65,8 +80,15 @@ func (cptool *CPTool) Test(
 			results.UnsuccessfullTestsCount++
 		} else {
 			status := TestCaseFailed
-			if succes {
+			if success {
 				status = TestCaseSuccess
+			}
+			if cptool.logger != nil {
+				if success {
+					cptool.logger.Println(logger.VERBOSE, "Test case passed")
+				} else {
+					cptool.logger.Println(logger.VERBOSE, "Test case failed")
+				}
 			}
 			results.TestCaseResults = append(results.TestCaseResults, TestCaseResult{
 				Testcase: testCase,
@@ -87,9 +109,16 @@ func (cptool *CPTool) TestByName(
 	solutionName string,
 	testPrefix string,
 ) (TestResult, error) {
+	if cptool.logger != nil {
+		cptool.logger.Println(logger.VERBOSE, "Testing using language:", languageName)
+	}
 	language, err := cptool.GetLanguageByName(languageName)
 	if err != nil {
 		return TestResult{}, err
+	}
+
+	if cptool.logger != nil {
+		cptool.logger.Println(logger.VERBOSE, "Testing using solution:", solutionName)
 	}
 	solution, err := cptool.GetSolution(solutionName, language)
 	if err != nil {

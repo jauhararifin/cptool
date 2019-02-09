@@ -38,16 +38,20 @@ func initCompileCommand() *cobra.Command {
 		Version: GetVersion(),
 		Args:    cobra.RangeArgs(1, 2),
 		Run: func(cmd *cobra.Command, args []string) {
-			cptool, logger := newDefaultCptool(cmd)
-			solutionName, language := parseSolution(cptool, logger, args)
-			logger.PrintInfo("Compiling solution: ", solutionName)
+			cptool, log := newDefaultCptool(cmd)
+			solutionName, language := parseSolution(cptool, log, args)
+			log.PrintInfo("Compiling solution: ", solutionName)
 			result, err := cptool.CompileByName(context.Background(), language.Name, solutionName, debug)
 			if err != nil {
-				logger.PrintError(err)
+				log.PrintError(err)
+				if len(result.ErrorMessage) > 0 {
+					log.Println(logger.ERROR, "")
+					log.Println(logger.ERROR, result.ErrorMessage)
+				}
 				os.Exit(1)
 			}
 			if result.Skipped {
-				logger.PrintWarning("Compilation skipped because solution already compiled")
+				log.PrintWarning("Compilation skipped because solution already compiled")
 			}
 			fmt.Printf("Compiled program : %s\n", result.TargetPath)
 			fmt.Printf("Done in %.2f seconds\n", result.Duration.Seconds())

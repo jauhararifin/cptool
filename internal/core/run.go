@@ -4,6 +4,8 @@ import (
 	"context"
 	"io"
 	"time"
+
+	"github.com/jauhararifin/cptool/internal/logger"
 )
 
 // ExecutionResult stores execution result
@@ -39,6 +41,9 @@ func (cptool *CPTool) Run(
 	duration := time.Since(start)
 
 	if err != nil {
+		if cptool.logger != nil {
+			cptool.logger.Println(logger.VERBOSE, "Program execution error:", err)
+		}
 		return ExecutionResult{}, err
 	}
 	return ExecutionResult{
@@ -57,9 +62,16 @@ func (cptool *CPTool) RunByName(
 	stdout io.Writer,
 	stderr io.Writer,
 ) (ExecutionResult, error) {
+	if cptool.logger != nil {
+		cptool.logger.Println(logger.VERBOSE, "Run solution with language:", languageName)
+	}
 	language, err := cptool.GetLanguageByName(languageName)
 	if err != nil {
 		return ExecutionResult{}, err
+	}
+
+	if cptool.logger != nil {
+		cptool.logger.Println(logger.VERBOSE, "Run solution:", solutionName)
 	}
 	solution, err := cptool.GetSolution(solutionName, language)
 	if err != nil {

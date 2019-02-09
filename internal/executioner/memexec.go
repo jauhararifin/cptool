@@ -4,6 +4,8 @@ import (
 	"context"
 	"io"
 	"os/exec"
+
+	"github.com/spf13/afero"
 )
 
 // MemExec implements Exec using callbacks
@@ -81,7 +83,7 @@ func (m *MemCmd) StderrPipe() (io.ReadCloser, error) {
 	if m.StderrPipeCallback != nil {
 		return m.StderrPipeCallback(m)
 	}
-	return nil, nil
+	return afero.NewMemMapFs().Create("/tmp/test")
 }
 
 // StdinPipe implements StdinPipe of Cmd
@@ -89,7 +91,7 @@ func (m *MemCmd) StdinPipe() (io.WriteCloser, error) {
 	if m.StdinPipeCallback != nil {
 		return m.StdinPipeCallback(m)
 	}
-	return nil, nil
+	return afero.NewMemMapFs().Create("/tmp/test")
 }
 
 // StdoutPipe implements StdoutPipe of Cmd
@@ -97,7 +99,7 @@ func (m *MemCmd) StdoutPipe() (io.ReadCloser, error) {
 	if m.StdoutPipeCallback != nil {
 		return m.StdoutPipeCallback(m)
 	}
-	return nil, nil
+	return afero.NewMemMapFs().Create("/tmp/test")
 }
 
 // Wait implements Wait of Cmd

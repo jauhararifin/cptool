@@ -3,9 +3,12 @@ package core
 import (
 	"context"
 	"errors"
+	"io/ioutil"
 	"os"
 	"path"
 	"time"
+
+	"github.com/jauhararifin/cptool/internal/logger"
 )
 
 // CompilationResult store the result of compiling solution. The Skipped property indicates whether the compilation
@@ -13,9 +16,10 @@ import (
 // TargetPath property contain the path to compiled program. Duration property indicates the duration of compilation
 // process.
 type CompilationResult struct {
-	Skipped    bool
-	TargetPath string
-	Duration   time.Duration
+	Skipped      bool
+	TargetPath   string
+	Duration     time.Duration
+	ErrorMessage string
 }
 
 // ErrLanguageNotDebuggable indicates that the language is not debuggable. This happens at compilation process when
@@ -37,6 +41,10 @@ func (cptool *CPTool) Compile(ctx context.Context, solution Solution, debug bool
 	cptool.fs.MkdirAll(targetDir, os.ModePerm)
 
 	targetPath := cptool.getCompiledTarget(solution, debug)
+	if cptool.logger != nil {
+		cptool.logger.Println(logger.VERBOSE, "Compiling to:", targetPath)
+	}
+
 	info, err := cptool.fs.Stat(targetPath)
 	if err == nil {
 		compiledTime := info.ModTime()
@@ -52,11 +60,34 @@ func (cptool *CPTool) Compile(ctx context.Context, solution Solution, debug bool
 	if debug {
 		commandPath = language.DebugScript
 	}
+	if cptool.logger != nil {
+		cptool.logger.Println(logger.VERBOSE, "Compiling using script:", commandPath)
+	}
+
 	cmd := cptool.exec.CommandContext(ctx, commandPath, solution.Path, targetPath)
-	err = cmd.Run()
+	stderr, err := cmd.StderrPipe()
 	if err != nil {
 		return CompilationResult{}, err
 	}
+
+	err = cmd.Start()
+	if err != nil {
+		return CompilationResult{}, err
+	}
+
+	compilationError, err := ioutil.ReadAll(stderr)
+	if err != nil {
+		return CompilationResult{}, err
+	}
+
+	err = cmd.Wait()
+	if err != nil {
+		if cptool.logger != nil {
+			cptool.logger.Print(logger.VERBOSE, "Compilation script execution giving error result")
+		}
+		return CompilationResult{ErrorMessage: string(compilationError)}, err
+	}
+
 	return CompilationResult{
 		Skipped:    false,
 		TargetPath: targetPath,
@@ -67,17 +98,26 @@ func (cptool *CPTool) Compile(ctx context.Context, solution Solution, debug bool
 // and then call Compile method. This method will return an error if the language or solution with it's name doesn't exist.
 func (cptool *CPTool) CompileByName(ctx context.Context, languageName string, solutionName string, debug bool) (CompilationResult, error) {
 	start := time.Now()
+
 	language, err := cptool.GetLanguageByName(languageName)
 	if err != nil {
 		return CompilationResult{}, err
 	}
+	if cptool.logger != nil {
+		cptool.logger.Println(logger.VERBOSE, "Compiling using language:", language.Name)
+	}
+
 	solution, err := cptool.GetSolution(solutionName, language)
 	if err != nil {
 		return CompilationResult{}, err
 	}
+	if cptool.logger != nil {
+		cptool.logger.Println(logger.VERBOSE, "Compiling solution:", solution.Name)
+	}
+
 	result, err := cptool.Compile(ctx, solution, debug)
 	if err != nil {
-		return CompilationResult{}, err
+		return result, err
 	}
 	result.Duration = time.Since(start)
 	return result, nil

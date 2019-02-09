@@ -44,6 +44,9 @@ func TestRunWithErrorCompilation(t *testing.T) {
 		if m.GetPath() == compileTestLanguage.RunScript {
 			executed = true
 		}
+		return nil
+	}
+	memexec.StartCallback = func(m *executioner.MemCmd) error {
 		if m.GetPath() == compileTestLanguage.CompileScript {
 			return errors.New("some error occured")
 		}

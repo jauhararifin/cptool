@@ -1,20 +1,18 @@
 package core
 
 import (
+	"bytes"
 	"os"
 	"os/user"
 	"testing"
 
 	"github.com/jauhararifin/cptool/internal/executioner"
+	"github.com/jauhararifin/cptool/internal/logger"
 	"github.com/spf13/afero"
 )
 
 func newTest() *CPTool {
 	return &CPTool{
-		MajorVersion: 1,
-		MinorVersion: 2,
-		PatchVersion: 5,
-
 		languages: make(map[string]Language),
 
 		exec: executioner.NewMemExec(),
@@ -23,7 +21,13 @@ func newTest() *CPTool {
 		workingDirectory:    "/home/test/cptool",
 		cptoolHomeDirectory: "/home/test/.cptool",
 		homeDirectory:       "/home/test/",
+
+		logger: logger.New(new(bytes.Buffer), 100),
 	}
+}
+
+func newDefault() (*CPTool, error) {
+	return New(nil, nil)
 }
 
 func getCptoolMemExec(cptool *CPTool) *executioner.MemExec {
@@ -32,19 +36,9 @@ func getCptoolMemExec(cptool *CPTool) *executioner.MemExec {
 }
 
 func TestNewDefault(t *testing.T) {
-	cptool, err := NewDefault()
+	cptool, err := newDefault()
 	if err != nil {
 		t.Error(err)
-	}
-
-	if cptool.MajorVersion != MajorVersion {
-		t.Error("NewDefault should returns cptool with MajorVersion=" + string(MajorVersion))
-	}
-	if cptool.MinorVersion != MinorVersion {
-		t.Error("NewDefault should returns cptool with MinorVersion=" + string(MinorVersion))
-	}
-	if cptool.PatchVersion != PatchVersion {
-		t.Error("NewDefault should returns cptool with PatchVersion=" + string(PatchVersion))
 	}
 
 	currentDirectory, _ := os.Getwd()
@@ -60,7 +54,7 @@ func TestNewDefault(t *testing.T) {
 }
 
 func TestBootstrap(t *testing.T) {
-	cptool, _ := NewDefault()
+	cptool, _ := newDefault()
 	err := cptool.Bootstrap()
 	if err != nil {
 		t.Error(err)

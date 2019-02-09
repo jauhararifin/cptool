@@ -15,10 +15,9 @@ func newDefaultCptool(cmd *cobra.Command) (*core.CPTool, *logger.Logger) {
 			loggingLevel = logger.VERBOSE
 		}
 	}
-
 	cptoolLogger := logger.New(os.Stderr, loggingLevel)
 
-	cptool, err := core.NewDefault(cptoolLogger)
+	cptool, err := core.New(nil, cptoolLogger)
 	if err != nil {
 		cptoolLogger.PrintError(err)
 		os.Exit(-1)
