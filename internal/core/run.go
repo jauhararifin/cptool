@@ -30,6 +30,9 @@ func (cptool *CPTool) Run(
 	if err != nil {
 		return ExecutionResult{}, err
 	}
+	if cptool.logger != nil {
+		cptool.logger.PrintInfo("Program compiled succeffully, running program now")
+	}
 
 	cmd := cptool.exec.CommandContext(ctx, language.RunScript, targetPath)
 	cmd.SetStdin(stdin)
@@ -42,7 +45,7 @@ func (cptool *CPTool) Run(
 
 	if err != nil {
 		if cptool.logger != nil {
-			cptool.logger.Println(logger.VERBOSE, "Program execution error:", err)
+			cptool.logger.Println(logger.VERBOSE, "Program execution error: ", err)
 		}
 		return ExecutionResult{}, err
 	}
@@ -63,7 +66,7 @@ func (cptool *CPTool) RunByName(
 	stderr io.Writer,
 ) (ExecutionResult, error) {
 	if cptool.logger != nil {
-		cptool.logger.Println(logger.VERBOSE, "Run solution with language:", languageName)
+		cptool.logger.Println(logger.VERBOSE, "Run solution with language: ", languageName)
 	}
 	language, err := cptool.GetLanguageByName(languageName)
 	if err != nil {
@@ -71,7 +74,7 @@ func (cptool *CPTool) RunByName(
 	}
 
 	if cptool.logger != nil {
-		cptool.logger.Println(logger.VERBOSE, "Run solution:", solutionName)
+		cptool.logger.Println(logger.VERBOSE, "Run solution: ", solutionName)
 	}
 	solution, err := cptool.GetSolution(solutionName, language)
 	if err != nil {

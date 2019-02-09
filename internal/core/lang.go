@@ -120,12 +120,12 @@ func (cptool *CPTool) GetDefaultLanguage() (Language, error) {
 	for _, confPath := range configurationPaths {
 		userConfigPath := path.Join(confPath, "config")
 		if cptool.logger != nil {
-			cptool.logger.Println(logger.VERBOSE, "Searching default language config in:", userConfigPath)
+			cptool.logger.Println(logger.VERBOSE, "Searching default language config in: ", userConfigPath)
 		}
 		info, err := cptool.fs.Stat(userConfigPath)
 		if err != nil || info.IsDir() {
 			if cptool.logger != nil {
-				cptool.logger.Println(logger.VERBOSE, "Language config doesn't found in:", userConfigPath)
+				cptool.logger.Println(logger.VERBOSE, "Language config doesn't found in: ", userConfigPath)
 			}
 			continue
 		}
@@ -138,7 +138,7 @@ func (cptool *CPTool) GetDefaultLanguage() (Language, error) {
 				if len(result.DefaultLanguage) > 0 {
 					if defaultLanguage, err := cptool.GetLanguageByName(result.DefaultLanguage); err == nil {
 						if cptool.logger != nil {
-							cptool.logger.Println(logger.VERBOSE, "Use default language:", defaultLanguage.Name)
+							cptool.logger.Println(logger.VERBOSE, "Use default language: ", defaultLanguage.Name)
 						}
 						return defaultLanguage, nil
 					}

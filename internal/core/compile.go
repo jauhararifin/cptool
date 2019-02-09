@@ -42,7 +42,7 @@ func (cptool *CPTool) Compile(ctx context.Context, solution Solution, debug bool
 
 	targetPath := cptool.getCompiledTarget(solution, debug)
 	if cptool.logger != nil {
-		cptool.logger.Println(logger.VERBOSE, "Compiling to:", targetPath)
+		cptool.logger.Println(logger.VERBOSE, "Compiling to: ", targetPath)
 	}
 
 	info, err := cptool.fs.Stat(targetPath)
@@ -61,7 +61,7 @@ func (cptool *CPTool) Compile(ctx context.Context, solution Solution, debug bool
 		commandPath = language.DebugScript
 	}
 	if cptool.logger != nil {
-		cptool.logger.Println(logger.VERBOSE, "Compiling using script:", commandPath)
+		cptool.logger.Println(logger.VERBOSE, "Compiling using script: ", commandPath)
 	}
 
 	cmd := cptool.exec.CommandContext(ctx, commandPath, solution.Path, targetPath)
