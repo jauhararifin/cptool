@@ -1,7 +1,7 @@
 language: go
 
 go:
-  - "1.12.x"
+  - 1.12.x
 
 git:
   depth: 1
@@ -10,8 +10,9 @@ notifications:
   email: false
 
 before_install:
-  - go install
   - go get -u golang.org/x/lint/golint
+
+install: true
 
 script:
   - golint $(go list ./...)
