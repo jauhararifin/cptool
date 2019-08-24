@@ -24,7 +24,12 @@ curl -Lo /tmp/cptool.tar.gz https://github.com/$GITHUB_REPO/releases/download/v$
 
 echo "Verifying downloaded binary"
 BINARY_CHECKSUM=$(curl -L https://github.com/$GITHUB_REPO/releases/download/v$VERSION/cptool_checksums.txt 2> /dev/null | grep $CPTOOL_NAME | head -c 64)
-DOWNLOADED_CHECKSUM=$(sha256sum /tmp/cptool.tar.gz | head -c 64)
+if which sha256sum 2> /dev/null; then
+    CHECKSUM_COMMAND=sha256sum
+else
+    CHECKSUM_COMMAND="shasum -a 256"
+fi
+DOWNLOADED_CHECKSUM=$($CHECKSUM_COMMAND /tmp/cptool.tar.gz | head -c 64)
 if [[ "$BINARY_CHECKSUM" != "$DOWNLOADED_CHECKSUM" ]]; then
     echo "Downloaded binary corrupted"
     exit -1
@@ -41,6 +46,10 @@ if [ -z $CPTOOL_DIR ]; then
     echo "" >> $HOME/.bashrc
     echo "export CPTOOL_DIR=\"$INSTALL_DIR\"" >> $HOME/.bashrc
     echo "export PATH=\"\$PATH:\$CPTOOL_DIR\"" >> $HOME/.bashrc
+
+    echo "Put this in your .bashrc or .zshrc"
+    echo "export CPTOOL_DIR=\"$INSTALL_DIR\""
+    echo "export PATH=$PATH:$CPTOOL_DIR"
 fi
 
 echo "Installed"

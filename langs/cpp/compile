@@ -3,6 +3,6 @@
 SOURCE=$1
 DEST=$2
 
-g++ -x c++ -Wall -O2 -static -pipe -o "$DEST" "$SOURCE"
+g++ -Wfatal-errors -O2 -o "$DEST" "$SOURCE"
 
 exit $?

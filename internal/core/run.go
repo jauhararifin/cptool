@@ -28,6 +28,9 @@ func (cptool *CPTool) Run(
 	targetPath := cptool.getCompiledTarget(solution, false)
 	compilationResult, err := cptool.Compile(ctx, solution, false)
 	if err != nil {
+		if cptool.logger != nil {
+			cptool.logger.PrintError("Program compilation error\n", compilationResult.ErrorMessage)
+		}
 		return ExecutionResult{}, err
 	}
 	if cptool.logger != nil {

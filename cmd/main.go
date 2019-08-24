@@ -12,7 +12,7 @@ const MajorVersion = 1
 const MinorVersion = 0
 
 // PatchVersion incidates current cptool patch version
-const PatchVersion = 9
+const PatchVersion = 10
 
 // GetVersion returns current version as string. Example: "v.1.0.1"
 func GetVersion() string {
